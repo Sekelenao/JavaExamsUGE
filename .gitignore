@@ -1,0 +1,16 @@
+#Directories
+out/
+.idea/
+target/
+.settings/
+subject/
+
+#Files
+.classpath
+.project
+
+#Extensions
+*.iml
+*.class
+*.log
+*.jar
