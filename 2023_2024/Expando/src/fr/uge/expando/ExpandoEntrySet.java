@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
+final class ExpandoEntrySet extends AbstractSet<Map.Entry<String, Object>> {
 
     private final Map<String, RecordComponent> fields;
 
@@ -14,10 +14,13 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
 
     private final Object type;
 
-    CustomSet(Map<String, RecordComponent> fields, Map<String, Object> attributes, Object type){
+    private final int isOrdered;
+
+    ExpandoEntrySet(Map<String, RecordComponent> fields, Map<String, Object> attributes, Object type, boolean isOrdered){
         this.fields = Objects.requireNonNull(fields);
         this.attributes = Objects.requireNonNull(attributes);
         this.type = Objects.requireNonNull(type);
+        this.isOrdered = isOrdered ? Spliterator.ORDERED : 0;
     }
 
     @Override
@@ -43,8 +46,7 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
                             ExpandoUtils.invoke(entry.getValue().getAccessor(), type));
                 }
                 if (attributesIterator.hasNext()) {
-                    var entry = attributesIterator.next();
-                    return Map.entry(entry.getKey(), entry.getValue());
+                    return attributesIterator.next();
                 }
                 throw new NoSuchElementException();
             }
@@ -58,6 +60,8 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
 
     @Override
     public Spliterator<Map.Entry<String, Object>> spliterator() {
+        final var characteristics = Spliterator.DISTINCT | Spliterator.IMMUTABLE |
+                Spliterator.NONNULL | Spliterator.SIZED | isOrdered;
         return new Spliterator<>() {
 
             private long remaining = size();
@@ -83,8 +87,7 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
                         batch.add(iterator.next());
                     }
                     remaining -= batch.size();
-                    return Spliterators.spliterator(batch, Spliterator.DISTINCT | Spliterator.IMMUTABLE |
-                            Spliterator.NONNULL | Spliterator.SIZED);
+                    return Spliterators.spliterator(batch, characteristics);
                 }
                 return null;
             }
@@ -96,8 +99,7 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
 
             @Override
             public int characteristics() {
-                return Spliterator.DISTINCT | Spliterator.IMMUTABLE |
-                        Spliterator.NONNULL | Spliterator.SIZED;
+                return characteristics;
             }
         };
     }
@@ -106,6 +108,5 @@ final class CustomSet extends AbstractSet<Map.Entry<String, Object>> {
     public Stream<Map.Entry<String, Object>> stream() {
         return StreamSupport.stream(spliterator(), true);
     }
-
 
 }

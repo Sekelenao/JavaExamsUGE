@@ -1,10 +1,7 @@
 package fr.uge.expando;
 
 import java.lang.reflect.RecordComponent;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public interface Expando {
@@ -19,7 +16,15 @@ public interface Expando {
 
             @Override
             public Set<Entry<String, Object>> entrySet() {
-                return new CustomSet(fields, moreAttributes(), type);
+
+                // We transformed the map to an ImmutableCollection due to copyAttributes from ExpandoUtils.
+                // So we can not get the original type.
+                // TODO
+
+                return switch (moreAttributes()){
+                    case SequencedMap<String, Object> attr -> new ExpandoEntrySet(fields, attr, type, true);
+                    default -> new ExpandoEntrySet(fields, moreAttributes(), type, false);
+                };
             }
 
             @Override
@@ -42,7 +47,7 @@ public interface Expando {
             @Override
             public void forEach(BiConsumer<? super String, ? super Object> action) {
                 Objects.requireNonNull(action);
-                entrySet().forEach(e -> action.accept(e.getKey(), e.getValue()));
+                for (var e : entrySet()) action.accept(e.getKey(), e.getValue());
             }
 
         };

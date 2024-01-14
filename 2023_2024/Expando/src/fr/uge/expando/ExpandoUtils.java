@@ -3,9 +3,7 @@ package fr.uge.expando;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.RecordComponent;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class ExpandoUtils {
@@ -25,8 +23,8 @@ public final class ExpandoUtils {
     }
 
     public static <R extends Record & Expando> Map<String, Object> copyAttributes(Map<String, Object> moreAttributes, Class<R> type){
+        Objects.requireNonNull(type);
         Objects.requireNonNull(moreAttributes);
-        if(!Objects.requireNonNull(type).isRecord()) throw new IllegalArgumentException("Can only take a record");
         for(var e : moreAttributes.entrySet()){
             Objects.requireNonNull(e.getValue());
             if(CACHE.get(type).containsKey(Objects.requireNonNull(e.getKey()))){
@@ -48,7 +46,7 @@ public final class ExpandoUtils {
             if (cause instanceof RuntimeException uncheckedException) { // Exceptions unchecked
                 throw uncheckedException;
             }
-            if (cause instanceof Error error) { // Error de la VM (critique)
+            if (cause instanceof Error error) { // Error VM (critical)
                 throw error;
             }
             throw new AssertionError(cause); // Other
