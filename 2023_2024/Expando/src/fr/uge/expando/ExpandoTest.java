@@ -539,8 +539,6 @@ public class ExpandoTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q7 {
     @Test
@@ -575,7 +573,6 @@ public class ExpandoTest {
       assertThrows(NullPointerException.class, () -> new NoAttr(Map.of()).asMap().forEach(null));
     }
   }
-
 
   @Nested
   public class Q8 {
@@ -716,6 +713,7 @@ public class ExpandoTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q9 {

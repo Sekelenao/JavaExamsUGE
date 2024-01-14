@@ -2,6 +2,11 @@ package fr.uge.expando;
 
 import java.lang.reflect.RecordComponent;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public interface Expando {
 
@@ -53,6 +58,46 @@ public interface Expando {
                         return fields.size() + moreAttributes().size();
                     }
 
+                    @Override
+                    public Spliterator<Entry<String, Object>> spliterator() {
+                        return new Spliterator<>() {
+
+                            private long remaining = size();
+
+                            private final Iterator<Entry<String, Object>> iterator = iterator();
+
+                            @Override
+                            public boolean tryAdvance(Consumer<? super Entry<String, Object>> action) {
+                                if (iterator.hasNext()) {
+                                    action.accept(iterator.next());
+                                    remaining--;
+                                    return true;
+                                }
+                                return false;
+                            }
+
+                            @Override
+                            public Spliterator<Entry<String, Object>> trySplit() {
+                                return null;
+                            }
+
+                            @Override
+                            public long estimateSize() {
+                                return remaining;
+                            }
+
+                            @Override
+                            public int characteristics() {
+                                return Spliterator.DISTINCT | Spliterator.IMMUTABLE |
+                                        Spliterator.NONNULL | Spliterator.SIZED;
+                            }
+                        };
+                    }
+
+                    @Override
+                    public Stream<Entry<String, Object>> stream() {
+                        return StreamSupport.stream(spliterator(), false);
+                    }
                 };
             }
 
@@ -73,6 +118,13 @@ public interface Expando {
                 var tmp = get(Objects.requireNonNull(key));
                 return tmp == null ? defaultValue : tmp;
             }
+
+            @Override
+            public void forEach(BiConsumer<? super String, ? super Object> action) {
+                Objects.requireNonNull(action);
+                for(var e : entrySet()) action.accept(e.getKey(), e.getValue());
+            }
+
         };
     }
 
