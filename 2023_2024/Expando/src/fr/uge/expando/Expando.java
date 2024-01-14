@@ -84,7 +84,8 @@ public interface Expando {
                                         batch.add(iterator.next());
                                     }
                                     remaining -= batch.size();
-                                    return Spliterators.spliterator(batch, 0);
+                                    return Spliterators.spliterator(batch, Spliterator.DISTINCT | Spliterator.IMMUTABLE |
+                                            Spliterator.NONNULL | Spliterator.SIZED);
                                 }
                                 return null;
                             }
