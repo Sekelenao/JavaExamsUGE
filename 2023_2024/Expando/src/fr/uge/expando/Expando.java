@@ -4,7 +4,6 @@ import java.lang.reflect.RecordComponent;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -78,6 +77,15 @@ public interface Expando {
 
                             @Override
                             public Spliterator<Entry<String, Object>> trySplit() {
+                                int batchSize = 256;
+                                if (remaining > batchSize) {
+                                    Set<Entry<String, Object>> batch = HashSet.newHashSet(batchSize);
+                                    for (int i = 0; i < batchSize && iterator.hasNext(); i++) {
+                                        batch.add(iterator.next());
+                                    }
+                                    remaining -= batch.size();
+                                    return Spliterators.spliterator(batch, 0);
+                                }
                                 return null;
                             }
 
@@ -96,7 +104,7 @@ public interface Expando {
 
                     @Override
                     public Stream<Entry<String, Object>> stream() {
-                        return StreamSupport.stream(spliterator(), false);
+                        return StreamSupport.stream(spliterator(), true);
                     }
                 };
             }
