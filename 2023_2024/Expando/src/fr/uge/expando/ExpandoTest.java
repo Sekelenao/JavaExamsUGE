@@ -713,8 +713,6 @@ public class ExpandoTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q9 {
     @Test
@@ -847,7 +845,5 @@ public class ExpandoTest {
       assertTrue(spliterator.hasCharacteristics(Spliterator.ORDERED));
     }
   }
-
-  */
 
 }
