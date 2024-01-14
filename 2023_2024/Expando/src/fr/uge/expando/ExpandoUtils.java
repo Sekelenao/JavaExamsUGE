@@ -24,7 +24,7 @@ public final class ExpandoUtils {
         throw new AssertionError("You cannot instantiate this class.");
     }
 
-    public static <Z extends Record & Expando> Map<String, Object> copyAttributes(Map<String, Object> moreAttributes, Class<Z> type){
+    public static <R extends Record & Expando> Map<String, Object> copyAttributes(Map<String, Object> moreAttributes, Class<R> type){
         Objects.requireNonNull(moreAttributes);
         if(!Objects.requireNonNull(type).isRecord()) throw new IllegalArgumentException("Can only take a record");
         for(var e : moreAttributes.entrySet()){
@@ -36,7 +36,7 @@ public final class ExpandoUtils {
         return Map.copyOf(moreAttributes);
     }
     
-    static <T extends Expando> Object invoke(Method accessor, T expando) {
+    static Object invoke(Method accessor, Object expando) {
         Objects.requireNonNull(accessor);
         Objects.requireNonNull(expando);
         try{
@@ -54,7 +54,5 @@ public final class ExpandoUtils {
             throw new AssertionError(cause); // Other
         }
     }
-
-
 
 }
