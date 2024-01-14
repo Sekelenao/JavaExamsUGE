@@ -16,15 +16,7 @@ public interface Expando {
 
             @Override
             public Set<Entry<String, Object>> entrySet() {
-
-                // We transformed the map to an ImmutableCollection due to copyAttributes from ExpandoUtils.
-                // So we can not get the original type.
-                // TODO
-
-                return switch (moreAttributes()){
-                    case SequencedMap<String, Object> attr -> new ExpandoEntrySet(fields, attr, type, true);
-                    default -> new ExpandoEntrySet(fields, moreAttributes(), type, false);
-                };
+                return new ExpandoEntrySet(fields, moreAttributes(), type);
             }
 
             @Override

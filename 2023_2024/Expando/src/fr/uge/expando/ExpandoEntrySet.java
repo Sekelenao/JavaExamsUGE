@@ -14,13 +14,10 @@ final class ExpandoEntrySet extends AbstractSet<Map.Entry<String, Object>> {
 
     private final Object type;
 
-    private final int isOrdered;
-
-    ExpandoEntrySet(Map<String, RecordComponent> fields, Map<String, Object> attributes, Object type, boolean isOrdered){
+    ExpandoEntrySet(Map<String, RecordComponent> fields, Map<String, Object> attributes, Object type){
         this.fields = Objects.requireNonNull(fields);
         this.attributes = Objects.requireNonNull(attributes);
         this.type = Objects.requireNonNull(type);
-        this.isOrdered = isOrdered ? Spliterator.ORDERED : 0;
     }
 
     @Override
@@ -61,7 +58,7 @@ final class ExpandoEntrySet extends AbstractSet<Map.Entry<String, Object>> {
     @Override
     public Spliterator<Map.Entry<String, Object>> spliterator() {
         final var characteristics = Spliterator.DISTINCT | Spliterator.IMMUTABLE |
-                Spliterator.NONNULL | Spliterator.SIZED | isOrdered;
+                Spliterator.NONNULL | Spliterator.SIZED | Spliterator.ORDERED;
         return new Spliterator<>() {
 
             private long remaining = size();

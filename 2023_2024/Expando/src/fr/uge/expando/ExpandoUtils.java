@@ -14,7 +14,9 @@ public final class ExpandoUtils {
             Objects.requireNonNull(type);
             return Arrays.stream(type.getRecordComponents())
                     .filter(r -> !r.getName().equals("moreAttributes"))
-                    .collect(Collectors.toMap(RecordComponent::getName, r -> r));
+                    .collect(Collectors.toMap(RecordComponent::getName, r -> r,
+                            (existingValueWithKey, valueSameKey) -> {throw new AssertionError();}, LinkedHashMap::new));
+            //LinkedHashMap for Q9
         }
     };
 
