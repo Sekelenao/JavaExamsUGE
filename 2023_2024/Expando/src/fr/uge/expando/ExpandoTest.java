@@ -467,8 +467,6 @@ public class ExpandoTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q6 {
     @Test
@@ -541,6 +539,7 @@ public class ExpandoTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q7 {

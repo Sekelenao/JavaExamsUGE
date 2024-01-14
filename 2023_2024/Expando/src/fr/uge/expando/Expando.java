@@ -10,11 +10,12 @@ public interface Expando {
     default Map<String, Object> asMap() {
         var type = this;
         return new AbstractMap<>() {
+
+            private final Map<String, RecordComponent> fields = ExpandoUtils.CACHE.get(type.getClass());
+
             @Override
             public Set<Entry<String, Object>> entrySet() {
                 return new AbstractSet<>() {
-
-                    private final Map<String, RecordComponent> fields = ExpandoUtils.CACHE.get(type.getClass());
 
                     @Override
                     public Iterator<Entry<String, Object>> iterator() {
@@ -53,6 +54,24 @@ public interface Expando {
                     }
 
                 };
+            }
+
+            @Override
+            public boolean containsKey(Object key) {
+                return fields.containsKey(key) || moreAttributes().containsKey(key);
+            }
+
+            @Override
+            public Object get(Object key) {
+                var recordComponent = fields.get(key);
+                return recordComponent == null ? moreAttributes().get(key) :
+                        ExpandoUtils.invoke(recordComponent.getAccessor(), type);
+            }
+
+            @Override
+            public Object getOrDefault(Object key, Object defaultValue) {
+                var tmp = get(Objects.requireNonNull(key));
+                return tmp == null ? defaultValue : tmp;
             }
         };
     }
