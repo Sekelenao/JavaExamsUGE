@@ -137,8 +137,6 @@ public class MoreCollectionsTest {
     MoreCollections.asMappedList(MoreCollections.asMappedList(al, Function.identity()), Function.identity());
   }
 
-  /*
-
   @Test(expected=NullPointerException.class)
   public void testAsMappedMappedCollectionNull() {
     MoreCollections.asMappedCollection(null, Function.identity());
@@ -226,5 +224,4 @@ public class MoreCollectionsTest {
     assertFalse(c instanceof Serializable);
   }
 
-   */
 }
