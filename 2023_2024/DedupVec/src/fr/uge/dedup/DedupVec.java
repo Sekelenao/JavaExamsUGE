@@ -33,4 +33,9 @@ public final class DedupVec<T> {
         return references.containsKey(element);
     }
 
+    public void addAll(DedupVec<? extends T> other){
+        Objects.requireNonNull(other);
+        other.elements.forEach(this::add);
+    }
+
 }
