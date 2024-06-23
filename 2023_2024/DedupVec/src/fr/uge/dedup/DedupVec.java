@@ -44,7 +44,12 @@ public final class DedupVec<T> {
 
     public void addAll(DedupVec<? extends T> other){
         Objects.requireNonNull(other);
-        other.elements.forEach(this::add);
+        boolean flag = false;
+        for(var key : other.references.keySet()){
+            flag = references.putIfAbsent(key, key) != null || flag;
+        }
+        if(!flag) elements.addAll(other.elements);
+        else other.elements.forEach(e -> elements.add(references.get(e)));
     }
 
     static <E> Map<E, E> newMapFromSet(Set<E> set){
