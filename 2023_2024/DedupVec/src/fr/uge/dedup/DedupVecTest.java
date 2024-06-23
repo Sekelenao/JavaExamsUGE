@@ -509,8 +509,6 @@ public class DedupVecTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q5 {
         @Test
@@ -687,6 +685,8 @@ public class DedupVecTest {
             assertThrows(NoSuchMethodException.class, () -> DedupVec.class.getMethod("newMapFromSet", Set.class));
         }
     }
+
+    /*
 
 
     @Nested

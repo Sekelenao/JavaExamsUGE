@@ -1,8 +1,6 @@
 package fr.uge.dedup;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 public final class DedupVec<T> {
 
@@ -36,6 +34,52 @@ public final class DedupVec<T> {
     public void addAll(DedupVec<? extends T> other){
         Objects.requireNonNull(other);
         other.elements.forEach(this::add);
+    }
+
+    static <E> Map<E, E> newMapFromSet(Set<E> set){
+        return new AbstractMap<>() {
+
+            @Override
+            public Set<Entry<E, E>> entrySet() {
+                return new AbstractSet<>() {
+
+                    @Override
+                    public Iterator<Entry<E, E>> iterator() {
+                        return new Iterator<>() {
+
+                            private final Iterator<E> iterator = set.iterator();
+
+                            @Override
+                            public boolean hasNext() {
+                                return iterator.hasNext();
+                            }
+
+                            @Override
+                            public Entry<E, E> next() {
+                                if(!hasNext()) {
+                                    throw new NoSuchElementException();
+                                }
+                                var elem = iterator.next();
+                                return new AbstractMap.SimpleImmutableEntry<>(elem, elem);
+                            }
+                        };
+                    }
+
+                    @Override
+                    public int size() {
+                        return set.size();
+                    }
+
+                };
+            }
+
+            @Override
+            public E get(Object key) {
+                Objects.requireNonNull(key);
+                return super.get(key);
+            }
+
+        };
     }
 
 }
