@@ -772,8 +772,6 @@ public class DedupVecTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q8 {
         @Test
@@ -893,6 +891,7 @@ public class DedupVecTest {
         }
     }
 
+    /*
 
     @Nested
     public class Q9 {

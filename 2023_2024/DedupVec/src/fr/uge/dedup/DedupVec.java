@@ -2,7 +2,7 @@ package fr.uge.dedup;
 
 import java.util.*;
 
-public final class DedupVec<T> {
+public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
 
     private final List<T> elements;
 
@@ -19,7 +19,7 @@ public final class DedupVec<T> {
         this.references = new HashMap<>(map);
     }
 
-    public void add(T element){
+    public boolean add(T element){
         Objects.requireNonNull(element);
         var existingElem = references.get(element);
         if(existingElem == null){
@@ -28,6 +28,7 @@ public final class DedupVec<T> {
         } else {
             elements.add(existingElem);
         }
+        return true;
     }
 
     public T get(int index){
@@ -42,7 +43,7 @@ public final class DedupVec<T> {
         return references.containsKey(element);
     }
 
-    public void addAll(DedupVec<? extends T> other){
+    boolean addAll(DedupVec<? extends T> other){
         Objects.requireNonNull(other);
         boolean flag = false;
         for(var key : other.references.keySet()){
@@ -50,6 +51,7 @@ public final class DedupVec<T> {
         }
         if(!flag) elements.addAll(other.elements);
         else other.elements.forEach(e -> elements.add(references.get(e)));
+        return true;
     }
 
     static <E> Map<E, E> newMapFromSet(Set<E> set){
@@ -100,6 +102,12 @@ public final class DedupVec<T> {
 
     public static <E> DedupVec<E> fromSet(Set<? extends E> set) {
         return new DedupVec<>(newMapFromSet(set));
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        if(c instanceof DedupVec<? extends T> other) return addAll(other);
+        return super.addAll(c);
     }
 
 }
