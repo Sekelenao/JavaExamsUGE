@@ -4,9 +4,20 @@ import java.util.*;
 
 public final class DedupVec<T> {
 
-    private final ArrayList<T> elements = new ArrayList<>();
+    private final List<T> elements;
 
-    private final HashMap<T, T> references = new HashMap<>();
+    private final Map<T, T> references;
+
+    public DedupVec() {
+        this.elements = new ArrayList<>();
+        this.references = new HashMap<>();
+    }
+
+    private DedupVec(Map<? extends T, ? extends T> map) {
+        Objects.requireNonNull(map);
+        this.elements = new ArrayList<>(map.values());
+        this.references = new HashMap<>(map);
+    }
 
     public void add(T element){
         Objects.requireNonNull(element);
@@ -80,6 +91,10 @@ public final class DedupVec<T> {
             }
 
         };
+    }
+
+    public static <E> DedupVec<E> fromSet(Set<? extends E> set) {
+        return new DedupVec<>(newMapFromSet(set));
     }
 
 }
