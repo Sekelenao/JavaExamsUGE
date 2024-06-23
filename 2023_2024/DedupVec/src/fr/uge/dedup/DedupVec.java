@@ -64,7 +64,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         Objects.requireNonNull(other);
         boolean flag = false;
         for(var key : other.references.keySet()){
-            flag = references.putIfAbsent(key, key) != null || flag;
+            flag |= references.putIfAbsent(key, key) != null;
         }
         if(!flag) elements.addAll(other.elements);
         else other.elements.forEach(e -> elements.add(references.get(e)));
