@@ -29,4 +29,8 @@ public final class DedupVec<T> {
         return elements.size();
     }
 
+    public boolean contains(Object element){
+        return references.containsKey(element);
+    }
+
 }
