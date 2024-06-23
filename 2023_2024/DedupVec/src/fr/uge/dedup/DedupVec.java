@@ -19,6 +19,10 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         this.references = new HashMap<>(map);
     }
 
+    private static void checkPosition(int position, int size){
+        Objects.checkIndex(position, size + 1);
+    }
+
     public boolean add(T element){
         Objects.requireNonNull(element);
         var existingElem = references.get(element);
@@ -29,6 +33,19 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
             elements.add(existingElem);
         }
         return true;
+    }
+
+    @Override
+    public void add(int index, T element) {
+        Objects.requireNonNull(element);
+        checkPosition(index, elements.size());
+        var existingElem = references.get(element);
+        if(existingElem == null){
+            elements.add(index, element);
+            references.put(element, element);
+        } else {
+            elements.add(index, existingElem);
+        }
     }
 
     public T get(int index){
@@ -43,7 +60,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         return references.containsKey(element);
     }
 
-    boolean addAll(DedupVec<? extends T> other){
+    private boolean addAll(DedupVec<? extends T> other){
         Objects.requireNonNull(other);
         boolean flag = false;
         for(var key : other.references.keySet()){
