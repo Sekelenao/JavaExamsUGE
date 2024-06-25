@@ -19,10 +19,6 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         this.references = new HashMap<>(map);
     }
 
-    private static void checkPosition(int position, int size){
-        Objects.checkIndex(position, size + 1);
-    }
-
     public boolean add(T element){
         Objects.requireNonNull(element);
         var existingElem = references.get(element);
@@ -38,7 +34,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
     @Override
     public void add(int index, T element) {
         Objects.requireNonNull(element);
-        checkPosition(index, elements.size());
+        Objects.checkIndex(index, elements.size() + 1);
         var existingElem = references.get(element);
         if(existingElem == null){
             elements.add(index, element);
@@ -49,6 +45,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
     }
 
     public T get(int index){
+        Objects.checkIndex(index, elements.size());
         return elements.get(index);
     }
 
@@ -72,6 +69,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
     }
 
     static <E> Map<E, E> newMapFromSet(Set<E> set){
+        Objects.requireNonNull(set);
         return new AbstractMap<>() {
 
             @Override
@@ -118,11 +116,13 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
     }
 
     public static <E> DedupVec<E> fromSet(Set<? extends E> set) {
+        Objects.requireNonNull(set);
         return new DedupVec<>(newMapFromSet(set));
     }
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
+        Objects.requireNonNull(c);
         if(c instanceof DedupVec<? extends T> other) return addAll(other);
         return super.addAll(c);
     }
