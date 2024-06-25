@@ -19,6 +19,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         this.references = new HashMap<>(map);
     }
 
+    @Override
     public boolean add(T element){
         Objects.requireNonNull(element);
         var existingElem = references.get(element);
@@ -53,6 +54,7 @@ public final class DedupVec<T> extends AbstractList<T> implements RandomAccess {
         return elements.size();
     }
 
+    @Override
     public boolean contains(Object element){
         return references.containsKey(element);
     }
