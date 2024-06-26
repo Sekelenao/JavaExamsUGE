@@ -81,12 +81,10 @@ public final class MoreCollections {
     public static <T, E> List<E> asMappedList(List<? extends T> list, Function<? super T, ? extends E> mapper) {
         Objects.requireNonNull(list);
         Objects.requireNonNull(mapper);
-        switch (list){
-            case RandomAccess ignored -> {
-                return new MappedListView<>(list, mapper);
-            }
-            default -> throw new IllegalStateException("Only for lists implementing RandomAccess.");
+        if (list instanceof RandomAccess) {
+            return new MappedListView<>(list, mapper);
         }
+        throw new IllegalStateException("Only for lists implementing RandomAccess.");
     }
 
     public static <T, E> Collection<E> asMappedCollection(Collection<? extends T> collection, Function<? super T, ? extends E> mapper) {
