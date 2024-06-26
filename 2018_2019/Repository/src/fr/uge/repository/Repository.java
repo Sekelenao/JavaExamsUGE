@@ -10,11 +10,9 @@ import java.util.stream.StreamSupport;
 public final class Repository<T> {
 
     /*
-
     Here, we create an inner class so that the Selector has a reference to the instance of the outer class.
     This allows us to avoid storing the Selector in the Repository and vice versa, and also eliminates the need for
     unnecessary getters. It also allows us to make the constructor as well as the selection method private.
-
      */
 
     public final class Selector implements Index {
