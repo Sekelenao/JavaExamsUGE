@@ -1,8 +1,6 @@
 package fr.uge.java.cord;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class Cord<T> implements Iterable<T> {
