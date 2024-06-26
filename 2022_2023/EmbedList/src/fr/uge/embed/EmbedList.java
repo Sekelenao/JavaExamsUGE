@@ -15,8 +15,8 @@ import java.util.stream.StreamSupport;
 public final class EmbedList<T> extends AbstractList<T> implements Iterable<T> {
 
 	public interface Entry<T extends Entry<T>> {
-		abstract T getNext();
-		abstract void setNext(T value);
+		T getNext();
+		void setNext(T value);
 	}
 
 	private T head;
@@ -49,6 +49,7 @@ public final class EmbedList<T> extends AbstractList<T> implements Iterable<T> {
 		return size;
 	}
 
+	@Override
 	public void addFirst(T element) {
 		Objects.requireNonNull(element);
 		if (isUnmodifiable) throw new UnsupportedOperationException();
@@ -92,7 +93,7 @@ public final class EmbedList<T> extends AbstractList<T> implements Iterable<T> {
 	}
 
 	public T get(int index) {
-		if (isUnmodifiable && index >= size) {
+		if (isUnmodifiable && index >= size || index < 0) {
 			throw new IndexOutOfBoundsException();
 		}
 		if (index == size - 1 && index > 0) {
@@ -145,6 +146,7 @@ public final class EmbedList<T> extends AbstractList<T> implements Iterable<T> {
 	}
 
 	private <E> Spliterator<E> mappingSpliterator(Function<? super T, E> func) {
+		Objects.requireNonNull(func);
 		return new Spliterator<>() {
 
             private final Iterator<T> it = iterator();
