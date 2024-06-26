@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 
 public final class CactusList<T> extends AbstractList<T> implements RandomAccess, Iterable<T> {
 
-	private ArrayList<Object> cactusList = new ArrayList<>();
+	private ArrayList<Object> cactusElements = new ArrayList<>();
 
 	private boolean isFrozen;
 
@@ -40,13 +40,12 @@ public final class CactusList<T> extends AbstractList<T> implements RandomAccess
 		return isNormalized;
 	}
 
+	@Override
 	public boolean add(T element) {
 		Objects.requireNonNull(element);
 		if (isFrozen) throw new IllegalStateException();
-		switch (element) {
-			case CactusList<?> l -> throw new IllegalArgumentException();
-			default -> cactusList.add(element);
-		}
+		if(element instanceof CactusList<?>) throw new IllegalArgumentException();
+		cactusElements.add(element);
 		size++;
 		return true;
 	}
@@ -57,15 +56,16 @@ public final class CactusList<T> extends AbstractList<T> implements RandomAccess
 			throw new IllegalStateException();
 		}
 		other.isFrozen = true;
-		cactusList.add(other);
+		cactusElements.add(other);
 		size += other.size();
 		isNormalized = false;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void forEach(Consumer<? super T> func) {
 		Objects.requireNonNull(func);
-		cactusList.forEach(e -> {
+		cactusElements.forEach(e -> {
 			switch (e) {
 				case CactusList<?> l -> ((CactusList<T>) l).forEach(func);
 				default -> func.accept((T) e);
@@ -90,7 +90,7 @@ public final class CactusList<T> extends AbstractList<T> implements RandomAccess
 	}
 
 	private void normalize() {
-        cactusList = new ArrayList<>(this);
+        cactusElements = new ArrayList<>(this);
 		isNormalized = true;
 	}
 
@@ -98,7 +98,7 @@ public final class CactusList<T> extends AbstractList<T> implements RandomAccess
 	public T get(int index) {
 		Objects.checkIndex(index, size);
 		if (!isNormalized) normalize();
-		return (T) cactusList.get(index);
+		return (T) cactusElements.get(index);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public final class CactusList<T> extends AbstractList<T> implements RandomAccess
                     throw new NoSuchElementException();
                 }
                 while (queue.isEmpty()) {
-                    switch (cactusList.get(cactusIndex)) {
+                    switch (cactusElements.get(cactusIndex)) {
                         case CactusList<?> l -> {
                             l.forEach(e -> queue.offer((T) e));
                             cactusIndex++;
