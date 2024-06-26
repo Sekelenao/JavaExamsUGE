@@ -19,7 +19,7 @@ public final class Repository<T> {
 
     public final class Selector implements Index {
 
-        private final ArrayList<Integer> retainedIndices = new ArrayList<>();
+        private final List<Integer> retainedIndices = new ArrayList<>();
 
         private final Predicate<? super T> filter;
 
@@ -27,6 +27,7 @@ public final class Repository<T> {
 
         private Selector(Predicate<? super T> filter) {
             this.filter = Objects.requireNonNull(filter);
+            updateSelection();
         }
 
         private void updateSelection() {
@@ -36,6 +37,10 @@ public final class Repository<T> {
                         .forEach(retainedIndices::add);
                 lastSelected = size;
             }
+        }
+
+        private Index asIndex(){
+            return this;
         }
 
         public int size(){
@@ -82,7 +87,7 @@ public final class Repository<T> {
 
         private Query(){}
 
-        private final ArrayList<Index> selectors = new ArrayList<>(); // Stock them as Index to avoid casting in stream
+        private final ArrayList<Selector> selectors = new ArrayList<>(); // Stock them as Index to avoid casting in stream
 
         public Query select(Selector selector){
             Objects.requireNonNull(selector);
@@ -95,6 +100,8 @@ public final class Repository<T> {
                 case 0 -> IntStream.range(0, size).iterator();
                 case 1 -> selectors.getFirst().iterator();
                 default -> selectors.stream()
+                        .sorted(Comparator.comparingInt(Selector::size))
+                        .map(Selector::asIndex)
                         .reduce(Index::and)
                         .orElseThrow()
                         .iterator();
