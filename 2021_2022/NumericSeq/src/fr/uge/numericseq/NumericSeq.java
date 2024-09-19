@@ -101,6 +101,17 @@ public final class NumericSeq<T> implements Iterable<T> {
             }
 
         };
+
+    }
+
+    public void addAll(NumericSeq<T> other) {
+        Objects.requireNonNull(other);
+        if(elements.length + other.size > elements.length) {
+            grow(other.size);
+        }
+        for (var i = 0; i < other.size; i++) {
+            elements[size++] = other.elements[i];
+        }
     }
 
 }
