@@ -264,8 +264,6 @@ public class NumericSeqTest {
         }
     }
 
-    /*
-
     // Q5
     @Nested
     class Q5 {
@@ -519,6 +517,8 @@ public class NumericSeqTest {
             assertThrows(UnsupportedOperationException.class, iterator::remove);
         }
     }
+
+    /*
 
     // Q6
     @Nested

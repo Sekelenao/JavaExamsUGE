@@ -1,12 +1,14 @@
 package fr.uge.numericseq;
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
-public final class NumericSeq<T> {
+public final class NumericSeq<T> implements Iterable<T> {
 
     private static final int INITIAL_CAPACITY = 16;
 
@@ -77,6 +79,28 @@ public final class NumericSeq<T> {
                 .mapToObj(from)
                 .map(Objects::toString)
                 .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+
+            private final int maxSize = size;
+
+            private int currentIndex = 0;
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < maxSize;
+            }
+
+            @Override
+            public T next() {
+                if(!hasNext()) throw new NoSuchElementException();
+                return from.apply(elements[currentIndex++]);
+            }
+
+        };
     }
 
 }
