@@ -518,8 +518,6 @@ public class NumericSeqTest {
         }
     }
 
-    /*
-
     // Q6
     @Nested
     class Q6 {
@@ -869,5 +867,5 @@ public class NumericSeqTest {
                     () -> spliterator.hasCharacteristics(Spliterator.IMMUTABLE));
         }
     }
-     */
+
 }

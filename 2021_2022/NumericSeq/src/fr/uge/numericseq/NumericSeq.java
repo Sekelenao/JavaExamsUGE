@@ -1,14 +1,11 @@
 package fr.uge.numericseq;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.LongFunction;
-import java.util.function.Supplier;
-import java.util.function.ToLongFunction;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class NumericSeq<T> implements Iterable<T> {
 
@@ -106,7 +103,7 @@ public final class NumericSeq<T> implements Iterable<T> {
 
     }
 
-    public void addAll(NumericSeq<T> other) {
+    public NumericSeq<T> addAll(NumericSeq<T> other) {
         Objects.requireNonNull(other);
         if(elements.length + other.size > elements.length) {
             grow(other.size);
@@ -114,6 +111,7 @@ public final class NumericSeq<T> implements Iterable<T> {
         for (var i = 0; i < other.size; i++) {
             elements[size++] = other.elements[i];
         }
+        return this;
     }
 
     public <E> NumericSeq<E> map(Function<? super T, E> mapper, Supplier<NumericSeq<E>> factory) {
@@ -125,6 +123,59 @@ public final class NumericSeq<T> implements Iterable<T> {
             numericSeq.add(mapper.apply(element));
         }
         return numericSeq;
+    }
+
+    public static <E> Collector<E, ?, NumericSeq<E>> toNumericSeq(Supplier<NumericSeq<E>> factory) {
+        Objects.requireNonNull(factory);
+        return Collector.of(
+                factory,
+                NumericSeq::add,
+                NumericSeq::addAll,
+                Collector.Characteristics.IDENTITY_FINISH
+        );
+    }
+
+    private Spliterator<T> customSpliterator(int start, int end, long... array) {
+        return new Spliterator<>() {
+
+            private int index = start;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                if (index < end) {
+                    action.accept(from.apply(array[index++]));
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Spliterator<T> trySplit() {
+                if(end - start < 1024){
+                    return null;
+                }
+                var middle = (index + end) >>> 1;
+                if (middle == index) {
+                    return null;
+                }
+                var spliterator = customSpliterator(index, middle, array);
+                index = middle;
+                return spliterator;
+            }
+
+            @Override
+            public long estimateSize() {
+                return end - index;
+            }
+
+            @Override
+            public int characteristics() { return SIZED | SUBSIZED | ORDERED | NONNULL; }
+        };
+
+    }
+
+    public Stream<T> stream() {
+        return StreamSupport.stream(customSpliterator(0, size, elements), false);
     }
 
 }
