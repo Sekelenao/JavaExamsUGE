@@ -75,7 +75,7 @@ public interface Expando {
 
                             private int attributesIndex = 0;
 
-                            boolean isSplit = false;
+                            private boolean isSplit = false;
 
                             @Override
                             public boolean tryAdvance(Consumer<? super Entry<String, Object>> action) {
@@ -96,7 +96,6 @@ public interface Expando {
 
                             @Override
                             public Spliterator<Entry<String, Object>> trySplit() {
-
                                 if(isSplit) return null;
                                 isSplit = true;
                                 return moreAttributes().entrySet().spliterator();

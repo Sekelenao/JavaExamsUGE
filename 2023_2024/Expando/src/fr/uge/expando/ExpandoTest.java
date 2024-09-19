@@ -143,7 +143,7 @@ public class ExpandoTest {
         }
 
         @Test
-        public void copyAttributesQualityOfImplementation() throws NoSuchMethodException {
+        public void copyAttributesQualityOfImplementation() {
             var methods = Arrays.stream(ExpandoUtils.class.getDeclaredMethods())
                     .filter(m -> m.getName().equals("copyAttributes"))
                     .toList();
@@ -851,6 +851,25 @@ public class ExpandoTest {
             var spliterator = person.asMap().entrySet().spliterator();
             assertTrue(spliterator.hasCharacteristics(Spliterator.ORDERED));
         }
+
+        @Test
+        public void customTest(){
+            record AttrOnly(Map<String, Object> moreAttributes) implements Expando {
+                AttrOnly {
+                    moreAttributes = ExpandoUtils.copyAttributes(moreAttributes, AttrOnly.class);
+                }
+            }
+
+            var attributes = new LinkedHashMap<String, Object>();
+            range(0, 100).forEach(i -> attributes.put("" + i, i));
+            var attr = new AttrOnly(attributes);
+            assertTimeoutPreemptively(Duration.ofMillis(3_000), () -> {
+                var list = new ArrayList<>();
+                attr.asMap().entrySet().forEach(list::add);
+                assertEquals(new ArrayList<>(attributes.entrySet()), list);
+            });
+        }
+
     }
 
 }

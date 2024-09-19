@@ -20,11 +20,13 @@ public final class ExpandoUtils {
         protected Map<String, RecordComponent> computeValue(Class<?> type) {
             return Arrays.stream(type.getRecordComponents())
                     .filter(recordComponent -> !recordComponent.getName().equals(MORE_ATTR_NAME))
-                    .collect(Collectors.toMap(
-                            RecordComponent::getName,
-                            recordComponent -> recordComponent,
-                            (_, _) -> {throw new AssertionError();},
-                            LinkedHashMap::new)
+                    .collect(
+                            Collectors.toMap(
+                                RecordComponent::getName,
+                                recordComponent -> recordComponent,
+                                (_, _) -> {throw new AssertionError();},
+                                LinkedHashMap::new
+                            )
                     );
         }
 
@@ -39,6 +41,9 @@ public final class ExpandoUtils {
             if(components.containsKey(entry.getKey())) {
                 throw new IllegalArgumentException("You cannot add attributes with the same name of a record component");
             }
+        }
+        if(moreAttributes instanceof SequencedMap<String, Object>) {
+            return Collections.unmodifiableMap(new LinkedHashMap<>(moreAttributes));
         }
         return Map.copyOf(moreAttributes);
     }
