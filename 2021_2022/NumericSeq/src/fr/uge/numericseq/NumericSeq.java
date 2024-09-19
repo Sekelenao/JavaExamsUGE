@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.LongFunction;
+import java.util.function.Supplier;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
@@ -112,6 +114,17 @@ public final class NumericSeq<T> implements Iterable<T> {
         for (var i = 0; i < other.size; i++) {
             elements[size++] = other.elements[i];
         }
+    }
+
+    public <E> NumericSeq<E> map(Function<? super T, E> mapper, Supplier<NumericSeq<E>> factory) {
+        Objects.requireNonNull(mapper);
+        Objects.requireNonNull(factory);
+        var numericSeq = factory.get();
+        for(var i = 0; i < size; i++) {
+            var element = from.apply(elements[i]);
+            numericSeq.add(mapper.apply(element));
+        }
+        return numericSeq;
     }
 
 }
