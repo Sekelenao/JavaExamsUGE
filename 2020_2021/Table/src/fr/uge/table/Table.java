@@ -15,12 +15,27 @@ public final class Table<T> {
             this.positions = new TreeMap<>(comparator);
             for(var i = 0; i < elements.size(); i++) {
                 var key = keySupplier.apply(elements.get(i));
-                positions.merge(key, new ArrayList<>(i), (l1, l2) -> { l1.addAll(l2); return l1; });
+                positions.merge(key, new ArrayList<>(List.of(i)),
+                        (l1, l2) -> { l1.addAll(l2); return l1; });
             }
         }
 
         public int keySize(){
             return positions.size();
+        }
+
+        @Override
+        public String toString() {
+            var builder = new StringBuilder();
+            var sep = "";
+            for(var entry : positions.entrySet()) {
+                var key = entry.getKey();
+                var value = entry.getValue();
+                builder.append(sep).append(key)
+                        .append(": ").append(value);
+                sep = "\n";
+            }
+            return builder.toString();
         }
 
     }
@@ -59,9 +74,7 @@ public final class Table<T> {
     }
 
     public <E> Group<E> groupBy(Function<T, E> keySupplier, Comparator<E> comparator){
-        Objects.requireNonNull(comparator);
-        Objects.requireNonNull(keySupplier);
-        return new Group<>(comparator, keySupplier);
+        return new Group<>(Objects.requireNonNull(comparator), Objects.requireNonNull(keySupplier));
     }
 
 }
