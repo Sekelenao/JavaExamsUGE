@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class Table<T> {
 
@@ -62,6 +64,46 @@ public final class Table<T> {
 
             };
 
+        }
+
+        private Spliterator<T> spliterator() {
+            return new Spliterator<>() {
+
+                private final Iterator<Integer> indices = positions.values().stream()
+                        .flatMap(List::stream).iterator();
+
+                @Override
+                public boolean tryAdvance(Consumer<? super T> action) {
+                    if(indices.hasNext()){
+                        action.accept(elements.get(indices.next()));
+                        return true;
+                    }
+                    return false;
+                }
+
+                @Override
+                public Spliterator<T> trySplit() {
+                    return null;
+                }
+
+                @Override
+                public long estimateSize() {
+                    return elements.size();
+                }
+
+                @Override
+                public int characteristics() {
+                    var basics =  NONNULL | ORDERED | SIZED | SUBSIZED;
+                    if(!isDynamic) basics |= IMMUTABLE;
+                    return basics;
+                }
+
+            };
+
+        }
+
+        public Stream<T> stream(){
+            return StreamSupport.stream(spliterator(), false);
         }
 
         @Override
