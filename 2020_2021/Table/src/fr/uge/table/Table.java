@@ -7,17 +7,26 @@ public final class Table<T> {
 
     public final class Group<E> {
 
-        private final Map<E, List<Integer>> positions;
+        private final TreeMap<E, List<Integer>> positions;
 
-        private Group(Comparator<E> comparator, Function<T, E> keySupplier) {
+        private final Function<? super T, E> keySupplier;
+
+        private Group(Comparator<? super E> comparator, Function<? super T, E> keySupplier) {
             Objects.requireNonNull(comparator);
             Objects.requireNonNull(keySupplier);
             this.positions = new TreeMap<>(comparator);
+            this.keySupplier = keySupplier;
             for(var i = 0; i < elements.size(); i++) {
                 var key = keySupplier.apply(elements.get(i));
                 positions.merge(key, new ArrayList<>(List.of(i)),
                         (l1, l2) -> { l1.addAll(l2); return l1; });
             }
+        }
+
+        private void classify(int index) {
+            var key = keySupplier.apply(elements.get(index));
+            positions.merge(key, new ArrayList<>(List.of(index)),
+                    (l1, l2) -> { l1.addAll(l2); return l1; });
         }
 
         public int keySize(){
@@ -41,6 +50,8 @@ public final class Table<T> {
     }
 
     private final List<T> elements;
+
+    private final List<Group<?>> groups = new ArrayList<>();
 
     private final boolean isDynamic;
 
@@ -73,8 +84,21 @@ public final class Table<T> {
         return elements.size();
     }
 
-    public <E> Group<E> groupBy(Function<T, E> keySupplier, Comparator<E> comparator){
-        return new Group<>(Objects.requireNonNull(comparator), Objects.requireNonNull(keySupplier));
+    public <E> Group<E> groupBy(Function<? super T, E> keySupplier, Comparator<? super E> comparator){
+        Objects.requireNonNull(comparator);
+        Objects.requireNonNull(keySupplier);
+        var group = new Group<>(comparator, keySupplier);
+        groups.add(group);
+        return group;
+    }
+
+    public void add(T element){
+        Objects.requireNonNull(element);
+        if(!isDynamic) {
+            throw new UnsupportedOperationException("Not a dynamic table");
+        }
+        elements.add(element);
+        groups.forEach(group -> group.classify(elements.size() - 1));
     }
 
 }
