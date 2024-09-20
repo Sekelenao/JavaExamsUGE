@@ -39,6 +39,31 @@ public final class Table<T> {
                     .forEach(action);
         }
 
+        public List<T> lookup(E key){
+            Objects.requireNonNull(key);
+            return new AbstractList<>() {
+
+                private final List<Integer> indices = List.copyOf(positions.getOrDefault(key, List.of()));
+
+                @Override
+                public T get(int index) {
+                    return elements.get(indices.get(index));
+                }
+
+                @Override
+                public int size() {
+                    return indices.size();
+                }
+
+                @Override
+                public boolean add(T element) {
+                    throw new UnsupportedOperationException();
+                }
+
+            };
+
+        }
+
         @Override
         public String toString() {
             var builder = new StringBuilder();
@@ -106,7 +131,5 @@ public final class Table<T> {
         elements.add(element);
         groups.forEach(group -> group.classify(elements.size() - 1));
     }
-
-    
 
 }
