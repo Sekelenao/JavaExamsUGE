@@ -3,6 +3,7 @@ package fr.uge.table;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public final class Table<T> {
 
@@ -17,11 +18,7 @@ public final class Table<T> {
             Objects.requireNonNull(keySupplier);
             this.positions = new TreeMap<>(comparator);
             this.keySupplier = keySupplier;
-            for(var i = 0; i < elements.size(); i++) {
-                var key = keySupplier.apply(elements.get(i));
-                positions.merge(key, new ArrayList<>(List.of(i)),
-                        (l1, l2) -> { l1.addAll(l2); return l1; });
-            }
+            IntStream.range(0, elements.size()).forEach(this::classify);
         }
 
         private void classify(int index) {
@@ -109,5 +106,7 @@ public final class Table<T> {
         elements.add(element);
         groups.forEach(group -> group.classify(elements.size() - 1));
     }
+
+    
 
 }
