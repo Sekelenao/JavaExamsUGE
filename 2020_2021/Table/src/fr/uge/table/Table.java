@@ -123,6 +123,10 @@ public final class Table<T> {
         return group;
     }
 
+    public <E extends Comparable<? super E>> Group<E> groupBy(Function<? super T, E> keySupplier){
+        return groupBy(keySupplier, Comparator.naturalOrder());
+    }
+
     public void add(T element){
         Objects.requireNonNull(element);
         if(!isDynamic) {
