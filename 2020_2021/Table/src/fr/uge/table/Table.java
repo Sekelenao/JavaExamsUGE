@@ -1,6 +1,7 @@
 package fr.uge.table;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class Table<T> {
@@ -31,6 +32,14 @@ public final class Table<T> {
 
         public int keySize(){
             return positions.size();
+        }
+
+        public void forEach(Consumer<? super T> action){
+            Objects.requireNonNull(action);
+            positions.values().stream()
+                    .flatMap(List::stream)
+                    .map(elements::get)
+                    .forEach(action);
         }
 
         @Override
