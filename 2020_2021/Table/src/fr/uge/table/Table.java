@@ -66,34 +66,37 @@ public final class Table<T> {
 
         }
 
-        private Spliterator<T> spliterator() {
+        private Spliterator<T> spliterator(Spliterator<List<Integer>> spliterator) {
             return new Spliterator<>() {
 
-                private final Iterator<Integer> indices = positions.values().stream()
-                        .flatMap(List::stream).iterator();
+                private final Spliterator<List<Integer>> splt = spliterator;
+
+                private Iterator<Integer> currentIt;
 
                 @Override
                 public boolean tryAdvance(Consumer<? super T> action) {
-                    if(indices.hasNext()){
-                        action.accept(elements.get(indices.next()));
-                        return true;
+                    if(currentIt == null || !currentIt.hasNext()) {
+                        var advanced = splt.tryAdvance(lst -> currentIt = lst.iterator());
+                        if(!advanced) return false;
                     }
-                    return false;
+                    var index = currentIt.next();
+                    action.accept(elements.get(index));
+                    return true;
                 }
 
                 @Override
                 public Spliterator<T> trySplit() {
-                    return null;
+                    return spliterator(splt.trySplit());
                 }
 
                 @Override
                 public long estimateSize() {
-                    return elements.size();
+                    return splt.getExactSizeIfKnown();
                 }
 
                 @Override
                 public int characteristics() {
-                    var basics =  NONNULL | ORDERED | SIZED | SUBSIZED;
+                    var basics =  NONNULL | ORDERED;
                     if(!isDynamic) basics |= IMMUTABLE;
                     return basics;
                 }
@@ -103,7 +106,7 @@ public final class Table<T> {
         }
 
         public Stream<T> stream(){
-            return StreamSupport.stream(spliterator(), false);
+            return StreamSupport.stream(spliterator(positions.values().spliterator()), false);
         }
 
         @Override
