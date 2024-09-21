@@ -174,11 +174,27 @@ public final class Table<T> {
 
     public void add(T element){
         Objects.requireNonNull(element);
-        if(!isDynamic) {
-            throw new UnsupportedOperationException("Not a dynamic table");
-        }
+        if(!isDynamic) throw new UnsupportedOperationException("Not a dynamic table");
         elements.add(element);
         groups.forEach(group -> group.classify(elements.size() - 1));
+    }
+
+    public void replace(T oldElement, T newElement){
+        Objects.requireNonNull(oldElement);
+        Objects.requireNonNull(newElement);
+        if(!isDynamic) throw new UnsupportedOperationException("Not a dynamic table");
+        for(var group : groups){
+            var oldKey = group.keySupplier.apply(oldElement);
+            var newKey = group.keySupplier.apply(newElement);
+            if(!newKey.equals(oldKey)){
+                throw new IllegalStateException("Keys don't match");
+            }
+        }
+        for(var i = 0; i < elements.size(); i++){
+            if(elements.get(i).equals(oldElement)){
+                elements.set(i, newElement);
+            }
+        }
     }
 
 }
