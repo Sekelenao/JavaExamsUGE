@@ -169,7 +169,7 @@ public final class Table<T> {
     }
 
     public <E extends Comparable<? super E>> Group<E> groupBy(Function<? super T, E> keySupplier){
-        return groupBy(keySupplier, Comparator.naturalOrder());
+        return groupBy(Objects.requireNonNull(keySupplier), Comparator.naturalOrder());
     }
 
     public void add(T element){
