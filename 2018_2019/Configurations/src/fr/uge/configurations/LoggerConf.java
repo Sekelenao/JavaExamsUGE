@@ -2,6 +2,7 @@ package fr.uge.configurations;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 public class LoggerConf {
 
@@ -25,6 +26,14 @@ public class LoggerConf {
     public LoggerConf level(LogLevel level){
         this.level = Objects.requireNonNull(level);
         return this;
+    }
+
+    @Override
+    public String toString() {
+        var joiner = new StringJoiner(", ", "{", "}");
+        if(name != null) joiner.add(name);
+        if(level != null) joiner.add(level.toString());
+        return joiner.toString();
     }
 
 }
