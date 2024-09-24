@@ -3,12 +3,18 @@ package fr.uge.policy;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class Policy<T> implements Iterable<T> {
 
     private final Map<Object, T> elements = new LinkedHashMap<>();
 
     private Predicate<T> policies = _ -> false;
+
+    private int lastVersionOfSizeCheck = 0;
+
+    private int lastKnownSize = 0;
 
     private int version;
 
@@ -88,10 +94,6 @@ public final class Policy<T> implements Iterable<T> {
     public Set<T> asSet(){
         return new AbstractSet<>() {
 
-            private int lastVersion = 0;
-
-            private int lastKnownSize = 0;
-
             @Override
             public Iterator<T> iterator() {
                 return Policy.this.iterator();
@@ -99,7 +101,7 @@ public final class Policy<T> implements Iterable<T> {
 
             @Override
             public int size() {
-                if(lastVersion == version) return lastKnownSize;
+                if(lastVersionOfSizeCheck == version) return lastKnownSize;
                 var size = 0;
                 for(var element : elements.values()) {
                     if(!policies.test(element)) {
@@ -107,7 +109,7 @@ public final class Policy<T> implements Iterable<T> {
                     }
                 }
                 lastKnownSize = size;
-                lastVersion = version;
+                lastVersionOfSizeCheck = version;
                 return size;
             }
 
@@ -119,6 +121,49 @@ public final class Policy<T> implements Iterable<T> {
             }
 
         };
+    }
+
+    @Override
+    public Spliterator<T> spliterator(){
+        return new Spliterator<>() {
+
+            private final Iterator<T> it = Policy.this.iterator();
+
+            private int size = lastVersionOfSizeCheck == version ? lastKnownSize : Integer.MAX_VALUE;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                Objects.requireNonNull(action);
+                if(it.hasNext()) {
+                    action.accept(it.next());
+                    size--;
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Spliterator<T> trySplit() {
+                return null;
+            }
+
+            @Override
+            public long estimateSize() {
+                return size;
+            }
+
+            @Override
+            public int characteristics() {
+                var opt = ORDERED | NONNULL | DISTINCT;
+                if(size != Integer.MAX_VALUE) opt |= SIZED;
+                return opt;
+            }
+
+        };
+    }
+
+    public Stream<T> stream(){
+        return StreamSupport.stream(spliterator(), false);
     }
 
 }
