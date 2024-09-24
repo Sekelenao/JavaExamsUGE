@@ -1,6 +1,5 @@
 package fr.uge.policy;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -36,6 +35,12 @@ public final class Policy<T> {
     public void forEach(Consumer<? super T> action) {
         Objects.requireNonNull(action);
         elements.values().stream().filter(Predicate.not(policies)).forEach(action);
+    }
+
+    public void addAll(Policy<T> other) {
+        Objects.requireNonNull(other);
+        elements.putAll(other.elements);
+        policies = policies.or(other.policies);
     }
 
 }
