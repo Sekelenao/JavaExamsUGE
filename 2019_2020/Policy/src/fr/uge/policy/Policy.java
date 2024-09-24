@@ -1,12 +1,15 @@
 package fr.uge.policy;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public final class Policy<T> {
 
-    private final HashMap<Object, T> elements = new HashMap<>();
+    private final Map<Object, T> elements = new LinkedHashMap<>();
 
     private Predicate<T> policies = _ -> false;
 
@@ -28,6 +31,11 @@ public final class Policy<T> {
 
     public Predicate<T> asAllDenyFilter(){
         return policies;
+    }
+
+    public void forEach(Consumer<? super T> action) {
+        Objects.requireNonNull(action);
+        elements.values().stream().filter(Predicate.not(policies)).forEach(action);
     }
 
 }
