@@ -13,11 +13,11 @@ public final class ConfHelper {
     }
 
     @SafeVarargs
-    public static String toString(LoggerConf conf, Function<LoggerConf, Optional<?>>... functions){
-        Objects.requireNonNull(conf);
-        Objects.requireNonNull(functions);
-        return Arrays.stream(functions)
-                .map(f -> f.apply(conf))
+    public static <T> String toString(T instance, Function<T, Optional<?>>... getters){
+        Objects.requireNonNull(instance);
+        Objects.requireNonNull(getters);
+        return Arrays.stream(getters)
+                .map(f -> f.apply(instance))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(Object::toString)
