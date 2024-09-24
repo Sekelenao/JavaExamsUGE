@@ -57,8 +57,13 @@ public final class Policy<T> implements Iterable<T> {
 
             private T next;
 
+            private void checkForConcurrentModification(){
+                if(expectedVersion != version) throw new ConcurrentModificationException();
+            }
+
             @Override
             public boolean hasNext() {
+                checkForConcurrentModification();
                 while (it.hasNext() && next == null) {
                     var value = it.next();
                     if(!policies.test(value)) {
@@ -70,11 +75,47 @@ public final class Policy<T> implements Iterable<T> {
 
             @Override
             public T next() {
+                checkForConcurrentModification();
                 if(!hasNext()) throw new NoSuchElementException();
-                if(expectedVersion != version) throw new ConcurrentModificationException();
                 var value = next;
                 next = null;
                 return value;
+            }
+
+        };
+    }
+
+    public Set<T> asSet(){
+        return new AbstractSet<>() {
+
+            private int lastVersion = 0;
+
+            private int lastKnownSize = 0;
+
+            @Override
+            public Iterator<T> iterator() {
+                return Policy.this.iterator();
+            }
+
+            @Override
+            public int size() {
+                if(lastVersion == version) return lastKnownSize;
+                var size = 0;
+                for(var element : elements.values()) {
+                    if(!policies.test(element)) {
+                        size++;
+                    }
+                }
+                lastKnownSize = size;
+                lastVersion = version;
+                return size;
+            }
+
+            @Override
+            public boolean contains(Object other) {
+                Objects.requireNonNull(other);
+                var element = elements.get(other);
+                return element != null && !policies.test(element);
             }
 
         };
