@@ -183,11 +183,6 @@ public final class EmbedList<T> extends AbstractList<T> implements Iterable<T> {
         };
 	}
 
-	@Override
-	public Spliterator<T> spliterator() {
-		return mappingSpliterator(e -> e);
-	}
-
 	public <E> Stream<E> valueStream(Function<? super T, E> function) {
 		Objects.requireNonNull(function);
 		return StreamSupport.stream(mappingSpliterator(function), false);
