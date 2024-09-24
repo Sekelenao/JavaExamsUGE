@@ -174,6 +174,11 @@ public final class NumericSeq<T> implements Iterable<T> {
 
     }
 
+    @Override
+    public Spliterator<T> spliterator() {
+        return customSpliterator(0, elements.length, elements);
+    }
+
     public Stream<T> stream() {
         return StreamSupport.stream(customSpliterator(0, size, elements), false);
     }
