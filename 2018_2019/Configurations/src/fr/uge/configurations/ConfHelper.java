@@ -1,10 +1,9 @@
 package fr.uge.configurations;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public final class ConfHelper {
@@ -35,6 +34,24 @@ public final class ConfHelper {
                 .map(pair -> Map.entry(pair.getKey(), pair.getValue().get()))
                 .map(pair -> String.join(": ", pair.getKey(), pair.getValue().toString()))
                 .collect(Collectors.joining(", ", "{", "}"));
+    }
+
+    @SafeVarargs
+    public static <T> Set<T> generateAll(Supplier<T> supplier, UnaryOperator<T>... setters) {
+        Objects.requireNonNull(supplier);
+        Objects.requireNonNull(setters);
+        var configurations = new HashSet<T>();
+        configurations.add(supplier.get());
+        for (int i = 1; i < (1 << setters.length); i++) {
+            var config = supplier.get();
+            for (int setterIndex = 0; setterIndex < setters.length; setterIndex++) {
+                if ((i & (1 << setterIndex)) != 0) {
+                    config = setters[setterIndex].apply(config);
+                }
+            }
+            configurations.add(config);
+        }
+        return configurations;
     }
 
 }

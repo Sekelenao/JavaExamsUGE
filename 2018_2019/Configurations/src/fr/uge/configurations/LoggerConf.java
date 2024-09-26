@@ -28,6 +28,16 @@ public class LoggerConf {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name, level);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof LoggerConf lc && lc.name.equals(name) && lc.level.equals(level);
+    }
+
+    @Override
     public String toString() {
         return ConfHelper.toString(this, LoggerConf::name, LoggerConf::level);
     }
