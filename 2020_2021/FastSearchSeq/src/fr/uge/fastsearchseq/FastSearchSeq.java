@@ -1,6 +1,7 @@
 package fr.uge.fastsearchseq;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class FastSearchSeq<T> implements Iterable<T> {
@@ -98,7 +99,14 @@ public class FastSearchSeq<T> implements Iterable<T> {
 
     @FunctionalInterface
     public interface IndexedConsumer<E> {
+
         void accept(E value, int index);
+
+        static <E> IndexedConsumer<E> onlyElement(Consumer<? super E> consumer) {
+            Objects.requireNonNull(consumer);
+            return (value, _) -> consumer.accept(value);
+        }
+
     }
 
     public void forEachIndexed(IndexedConsumer<? super T> consumer){
