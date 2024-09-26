@@ -95,4 +95,17 @@ public class FastSearchSeq<T> implements Iterable<T> {
             }
         };
     }
+
+    @FunctionalInterface
+    public interface IndexedConsumer<E> {
+        void accept(E value, int index);
+    }
+
+    public void forEachIndexed(IndexedConsumer<? super T> consumer){
+        Objects.requireNonNull(consumer);
+        for(int i = 0; i < size; i++){
+            consumer.accept(array[i], i);
+        }
+    }
+
 }
