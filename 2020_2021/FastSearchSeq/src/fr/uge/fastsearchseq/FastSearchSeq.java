@@ -1,10 +1,9 @@
 package fr.uge.fastsearchseq;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class FastSearchSeq<T> {
+public class FastSearchSeq<T> implements Iterable<T> {
 
     private T[] array;
 
@@ -69,4 +68,31 @@ public class FastSearchSeq<T> {
         return false;
     }
 
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+
+            private final int expectedSize = size;
+
+            private int index = 0;
+
+            private void checkForConcurrentModifications() {
+                if(size != expectedSize) throw new ConcurrentModificationException();
+            }
+
+            @Override
+            public boolean hasNext() {
+                checkForConcurrentModifications();
+                return index < size;
+            }
+
+            @Override
+            public T next() {
+                checkForConcurrentModifications();
+                if(!hasNext()) throw new NoSuchElementException();
+                return array[index++];
+            }
+        };
+    }
 }
