@@ -17,7 +17,18 @@ public class FastSearchSeq<T> {
         this.array = (T[]) new Object[INITIAL_CAPACITY];
     }
 
+    private void grow(int amount){
+        if(array.length == 0){
+            array = Arrays.copyOf(array, INITIAL_CAPACITY);
+        } else {
+            array = Arrays.copyOf(array, Math.max(array.length * 2, amount));
+        }
+    }
+
     public void add(T element){
+        if(size == array.length){
+            grow(1);
+        }
         array[size++] = Objects.requireNonNull(element);
     }
 
@@ -31,4 +42,7 @@ public class FastSearchSeq<T> {
                 .map(Object::toString)
                 .collect(Collectors.joining(", "));
     }
+
+
+
 }
