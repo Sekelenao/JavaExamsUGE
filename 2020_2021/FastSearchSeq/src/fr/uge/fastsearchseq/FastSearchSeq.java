@@ -3,6 +3,8 @@ package fr.uge.fastsearchseq;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class FastSearchSeq<T> implements Iterable<T> {
 
@@ -114,6 +116,52 @@ public class FastSearchSeq<T> implements Iterable<T> {
         for(int i = 0; i < size; i++){
             consumer.accept(array[i], i);
         }
+    }
+
+    private Spliterator<T> customSpliterator(int start, int end, T... array) {
+        return new Spliterator<>() {
+
+            private int index = start;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                Objects.requireNonNull(action);
+                if (index < end) {
+                    action.accept(array[index++]);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Spliterator<T> trySplit() {
+                var middle = (index + end) >>> 1;
+                if (middle == index) {
+                    return null;
+                }
+                var spliterator = customSpliterator(index, middle, array);
+                index = middle;
+                return spliterator;
+            }
+
+            @Override
+            public long estimateSize() {
+                return end - index;
+            }
+
+            @Override
+            public int characteristics() { return SIZED | SUBSIZED | NONNULL; }
+        };
+
+    }
+
+    @Override
+    public Spliterator<T> spliterator() {
+        return customSpliterator(0, size, array);
+    }
+
+    public Stream<T> stream(){
+        return StreamSupport.stream(customSpliterator(0, size, array), false);
     }
 
 }
