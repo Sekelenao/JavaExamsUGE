@@ -6,23 +6,19 @@ import java.util.stream.Collectors;
 
 public class FastSearchSeq<T> {
 
-    private static final int INITIAL_CAPACITY = 16;
-
     private T[] array;
 
     private int size;
 
+    private int random = 1;
+
     @SuppressWarnings("unchecked")
     public FastSearchSeq() {
-        this.array = (T[]) new Object[INITIAL_CAPACITY];
+        this.array = (T[]) new Object[16];
     }
 
     private void grow(int amount){
-        if(array.length == 0){
-            array = Arrays.copyOf(array, INITIAL_CAPACITY);
-        } else {
-            array = Arrays.copyOf(array, Math.max(array.length * 2, amount));
-        }
+        array = Arrays.copyOf(array, Math.max(array.length * 2, amount));
     }
 
     public void add(T element){
@@ -43,10 +39,34 @@ public class FastSearchSeq<T> {
                 .collect(Collectors.joining(", "));
     }
 
+    private int logarithm(int number){
+        return 31 - Integer.numberOfLeadingZeros(number);
+    }
+
+    private int nextRandom() {
+        var x = random;
+        x ^= x << 13;
+        x ^= x >> 17;
+        x ^= x << 5;
+        random = x;
+        return x;
+    }
+
     public boolean contains(Object element){
         Objects.requireNonNull(element);
-        return Arrays.stream(array, 0, size)
-                .anyMatch(element::equals);
+        for(int i = 0; i < size; i++){
+            if(array[i].equals(element)){
+                var logarithm = logarithm(size);
+                if(i > logarithm){
+                    int moveTo = nextRandom() % logarithm;
+                    var tmp = array[moveTo];
+                    array[moveTo] = array[i];
+                    array[i] = tmp;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
 }
