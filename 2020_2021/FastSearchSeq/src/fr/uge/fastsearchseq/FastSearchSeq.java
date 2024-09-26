@@ -1,6 +1,8 @@
 package fr.uge.fastsearchseq;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class FastSearchSeq<T> {
 
@@ -23,4 +25,10 @@ public class FastSearchSeq<T> {
         return size;
     }
 
+    @Override
+    public String toString() {
+        return Arrays.stream(array, 0, size)
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+    }
 }
