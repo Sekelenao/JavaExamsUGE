@@ -43,6 +43,10 @@ public class FastSearchSeq<T> {
                 .collect(Collectors.joining(", "));
     }
 
-
+    public boolean contains(Object element){
+        Objects.requireNonNull(element);
+        return Arrays.stream(array, 0, size)
+                .anyMatch(element::equals);
+    }
 
 }
