@@ -1,9 +1,10 @@
 package fr.uge.spliceview;
 
+import java.util.AbstractList;
 import java.util.List;
 import java.util.Objects;
 
-public final class SpliceView<T> {
+public final class SpliceView<T> extends AbstractList<T> {
 
     private final List<T> list;
 
@@ -23,7 +24,8 @@ public final class SpliceView<T> {
         }
     }
 
-    public static <E> SpliceView<E> of(List<E> list, int index, E[] array) {
+    @SafeVarargs
+    public static <E> SpliceView<E> of(List<E> list, int index, E... array) {
         Objects.requireNonNull(list);
         Objects.requireNonNull(array);
         checkPosition(index, list.size());

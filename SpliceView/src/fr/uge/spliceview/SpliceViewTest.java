@@ -294,7 +294,6 @@ public class SpliceViewTest {
     }
   }
 
-  /*
   @Nested
   public class Q2 {
     @Test
@@ -420,6 +419,7 @@ public class SpliceViewTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q3 {
