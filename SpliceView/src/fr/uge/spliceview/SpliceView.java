@@ -101,7 +101,6 @@ public final class SpliceView<T> extends AbstractList<T> {
     @Override
     public T set(int index, T element) {
         Objects.checkIndex(index, size());
-        Objects.requireNonNull(element);
         if (index < arrayIndex) {
             return list.set(index, element);
         }
@@ -112,5 +111,52 @@ public final class SpliceView<T> extends AbstractList<T> {
             return old;
         }
         return list.set(index - array.length, element);
+    }
+
+    private static void subListRangeCheck(int fromIndex, int toIndex, int size) {
+        if(fromIndex < 0) throw new IndexOutOfBoundsException("fromIndex = " + fromIndex);
+        if (toIndex > size) throw new IndexOutOfBoundsException("toIndex = " + toIndex);
+        if (fromIndex > toIndex) throw new IndexOutOfBoundsException("fromIndex > toIndex");
+    }
+
+    @Override
+    public List<T> subList(int fromIndex, int toIndex) {
+        subListRangeCheck(fromIndex, toIndex, size());
+        return new AbstractList<>() {
+
+            @Override
+            public T get(int index) {
+                Objects.checkIndex(index, size());
+                return SpliceView.this.get(fromIndex + index);
+            }
+
+            @Override
+            public int size() {
+                return toIndex - fromIndex;
+            }
+
+            @Override
+            public T set(int index, T element) {
+                Objects.checkIndex(index, size());
+                return SpliceView.this.set(fromIndex + index, element);
+            }
+
+            @Override
+            public void add(int index, T element) {
+                if(fromIndex < arrayIndex + array.length){
+                    throw new UnsupportedOperationException();
+                }
+                list.add(fromIndex - array.length + index, element);
+            }
+
+            @Override
+            public T remove(int index) {
+                if(fromIndex < arrayIndex + array.length){
+                    throw new UnsupportedOperationException();
+                }
+                return list.remove(fromIndex - array.length + index);
+            }
+
+        };
     }
 }

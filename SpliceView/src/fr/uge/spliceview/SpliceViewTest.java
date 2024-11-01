@@ -585,8 +585,6 @@ public class SpliceViewTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q7 {
     @Test
@@ -694,12 +692,34 @@ public class SpliceViewTest {
       );
     }
 
+    /*
+    @Override
+    public void add(int index, T element) {
+        if(fromIndex < arrayIndex + array.length){
+            throw new UnsupportedOperationException();
+        }
+        list.add(arrayIndex + index, element);
+    }
+
+    @Override
+    public T remove(int index) {
+        if(fromIndex < arrayIndex + array.length){
+            throw new UnsupportedOperationException();
+        }
+        return list.remove(arrayIndex + index);
+    }
+     */
+
+    // [1, [888], 2, 3, 66]
+    // [3, 66]
+
     @Test
     public void subListAddRightAtTheEnd() {
       var list = new ArrayList<>(List.of(1, 2, 3));
       var spliceView = SpliceView.of(list, 1, 888);
       var subList = spliceView.subList(4, 4);
       subList.add(66);
+      System.out.println(spliceView);
 
       assertAll(
           () -> assertEquals(5, spliceView.size()),
@@ -843,6 +863,7 @@ public class SpliceViewTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q8 {
