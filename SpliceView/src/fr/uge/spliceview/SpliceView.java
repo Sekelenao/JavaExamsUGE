@@ -32,10 +32,12 @@ public final class SpliceView<T> extends AbstractList<T> {
         return new SpliceView<>(list, index, array);
     }
 
+    @Override
     public int size() {
         return array.length + list.size();
     }
 
+    @Override
     public T get(int index) {
         Objects.checkIndex(index, size());
         if (index < arrayIndex) {                // Array is not on the path
@@ -63,6 +65,37 @@ public final class SpliceView<T> extends AbstractList<T> {
             .map(String::valueOf)
             .collect(Collectors.joining(", ", "[", "]")
         );
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+
+            private final Iterator<T> listIterator = list.iterator();
+
+            private int cursor;
+
+            @Override
+            public boolean hasNext() {
+                return cursor < size();
+            }
+
+            @Override
+            public T next() {
+                if(!hasNext()) throw new NoSuchElementException();
+                if (cursor < arrayIndex) {
+                    cursor++;
+                    return listIterator.next();
+                }
+                int remaining = cursor - arrayIndex;
+                if (remaining < array.length) {
+                    cursor++;
+                    return array[remaining];
+                }
+                cursor++;
+                return listIterator.next();
+            }
+        };
     }
 
 }
