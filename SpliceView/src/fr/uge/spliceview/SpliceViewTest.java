@@ -719,7 +719,6 @@ public class SpliceViewTest {
       var spliceView = SpliceView.of(list, 1, 888);
       var subList = spliceView.subList(4, 4);
       subList.add(66);
-      System.out.println(spliceView);
 
       assertAll(
           () -> assertEquals(5, spliceView.size()),
@@ -863,8 +862,6 @@ public class SpliceViewTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q8 {
     @Test
@@ -965,5 +962,4 @@ public class SpliceViewTest {
     }
   }
 
-   */
 }

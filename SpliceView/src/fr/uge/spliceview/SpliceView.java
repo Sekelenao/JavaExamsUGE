@@ -18,17 +18,13 @@ public final class SpliceView<T> extends AbstractList<T> {
         this.arrayIndex = index;
     }
 
-    private static void checkPosition(int position, int size) {
-        if (position < 0 || position > size) {
-            throw new IllegalArgumentException("position out of bounds");
-        }
-    }
-
     @SafeVarargs
     public static <E> SpliceView<E> of(List<E> list, int index, E... array) {
         Objects.requireNonNull(list);
         Objects.requireNonNull(array);
-        checkPosition(index, list.size());
+        if (index < 0 || index > list.size()) {
+            throw new IllegalArgumentException("position out of bounds");
+        }
         return new SpliceView<>(list, index, array);
     }
 
@@ -155,6 +151,12 @@ public final class SpliceView<T> extends AbstractList<T> {
                     throw new UnsupportedOperationException();
                 }
                 return list.remove(fromIndex - array.length + index);
+            }
+
+            @Override
+            public List<T> subList(int from, int to) {
+                subListRangeCheck(from, to, size());
+                return SpliceView.this.subList(fromIndex + from, fromIndex + to);
             }
 
         };
