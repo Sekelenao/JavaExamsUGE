@@ -1,8 +1,8 @@
 package fr.uge.spliceview;
 
-import java.util.AbstractList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class SpliceView<T> extends AbstractList<T> {
 
@@ -32,23 +32,37 @@ public final class SpliceView<T> extends AbstractList<T> {
         return new SpliceView<>(list, index, array);
     }
 
-    public int size(){
+    public int size() {
         return array.length + list.size();
     }
 
-    // 4
-    // [1, 2, {1, 4}, 6]
-
     public T get(int index) {
         Objects.checkIndex(index, size());
-        if(index < arrayIndex) {                // Array is not on the path
+        if (index < arrayIndex) {                // Array is not on the path
             return list.get(index);
         }
         int cursor = index - arrayIndex;        // We skip the start of the list
-        if(cursor < array.length) {             // If cursor is in the array
+        if (cursor < array.length) {             // If cursor is in the array
             return array[cursor];
         }
         return list.get(index - array.length);  // Element is after the array
+    }
+
+    @Override
+    public String toString() {
+        if(array.length == 0) return list.toString();
+        return Stream.of(
+                list.stream().limit(arrayIndex),
+                Stream.concat(
+                        Stream.of("@ " + array[0]),
+                        Arrays.stream(array).skip(1)
+                ),
+                list.stream().skip(arrayIndex)
+            )
+            .flatMap(s -> s)
+            .map(String::valueOf)
+            .collect(Collectors.joining(", ", "[", "]")
+        );
     }
 
 }
