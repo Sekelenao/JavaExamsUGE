@@ -98,4 +98,19 @@ public final class SpliceView<T> extends AbstractList<T> {
         };
     }
 
+    @Override
+    public T set(int index, T element) {
+        Objects.checkIndex(index, size());
+        Objects.requireNonNull(element);
+        if (index < arrayIndex) {
+            return list.set(index, element);
+        }
+        int cursor = index - arrayIndex;
+        if (cursor < array.length) {
+            var old = array[cursor];
+            array[cursor] = element;
+            return old;
+        }
+        return list.set(index - array.length, element);
+    }
 }
