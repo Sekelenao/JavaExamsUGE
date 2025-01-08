@@ -1,11 +1,11 @@
 package fr.uge.range;
 
-import java.util.AbstractList;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.RandomAccess;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public final class Range extends AbstractList<Integer> implements Iterable<Integer>, RandomAccess {
 
@@ -59,6 +59,65 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
             throw new IndexOutOfBoundsException();
         }
         return from + index;
+    }
+
+    private static Spliterator<Integer> rangeSpliterator(int from, int to) {
+        return new Spliterator<>() {
+
+            private int index = from;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super Integer> action) {
+                if(index < to) {
+                    action.accept(index++);
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Spliterator<Integer> trySplit() {
+                var middle = from + (to - from) / 2;
+                if (middle == index) {
+                    return null;
+                }
+                var spliterator = rangeSpliterator(index, middle);
+                index = middle;
+                return spliterator;
+            }
+
+            @Override
+            public long estimateSize() {
+                return to - index;
+            }
+
+            @Override
+            public int characteristics() {
+                return Spliterator.ORDERED | Spliterator.DISTINCT | Spliterator.NONNULL
+                        | Spliterator.IMMUTABLE | Spliterator.SIZED | Spliterator.SUBSIZED
+                        | Spliterator.SORTED;
+            }
+
+            @Override
+            public Comparator<? super Integer> getComparator() {
+                return null;
+            }
+        };
+    }
+
+    @Override
+    public Spliterator<Integer> spliterator() {
+        return rangeSpliterator(from, to);
+    }
+
+    @Override
+    public Stream<Integer> parallelStream() {
+        return StreamSupport.stream(rangeSpliterator(from, to), true);
+    }
+
+    @Override
+    public Stream<Integer> stream() {
+        return StreamSupport.stream(rangeSpliterator(from, to), false);
     }
 
     @Override
