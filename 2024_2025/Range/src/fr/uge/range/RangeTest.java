@@ -183,8 +183,6 @@ public class RangeTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q3 {
         @Test
@@ -330,6 +328,7 @@ public class RangeTest {
         }
     }
 
+    /*
 
     @Nested
     public class Q4 {

@@ -1,11 +1,13 @@
 package fr.uge.range;
 
+import java.util.AbstractList;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class Range implements Iterable<Integer> {
+public final class Range extends AbstractList<Integer> implements Iterable<Integer>, RandomAccess {
 
     private final int from;
 
@@ -49,6 +51,14 @@ public final class Range implements Iterable<Integer> {
                 return index++;
             }
         };
+    }
+
+    @Override
+    public Integer get(int index) {
+        if(index < 0 || index >= size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        return from + index;
     }
 
     @Override
