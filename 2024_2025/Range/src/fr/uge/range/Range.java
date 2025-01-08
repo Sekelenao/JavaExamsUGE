@@ -1,9 +1,11 @@
 package fr.uge.range;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class Range {
+public final class Range implements Iterable<Integer> {
 
     private final int from;
 
@@ -26,6 +28,27 @@ public final class Range {
 
     public int size(){
         return to - from;
+    }
+
+    @Override
+    public Iterator<Integer> iterator() {
+        return new Iterator<>() {
+
+            private int index = from;
+
+            @Override
+            public boolean hasNext() {
+                return index < to;
+            }
+
+            @Override
+            public Integer next() {
+                if(!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                return index++;
+            }
+        };
     }
 
     @Override
