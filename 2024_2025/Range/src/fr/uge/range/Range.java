@@ -155,6 +155,17 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
     }
 
     @Override
+    public List<Integer> subList(int fromIndex, int toIndex) {
+        if(fromIndex < 0 || toIndex > size()) {
+            throw new IndexOutOfBoundsException();
+        }
+        if(from > to) {
+            throw new IllegalArgumentException("Wrong range provided " + from + " > " + to);
+        }
+        return Range.of(from + fromIndex, from + toIndex);
+    }
+
+    @Override
     public String toString() {
         return IntStream.range(from, to)
                 .mapToObj(String::valueOf)
