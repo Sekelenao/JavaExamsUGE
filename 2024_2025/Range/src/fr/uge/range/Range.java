@@ -58,13 +58,13 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
         return from + index;
     }
 
-    private static Spliterator<Integer> rangeSpliterator(int from, int to) {
-        return new Spliterator<>() {
+    private static Spliterator.OfInt rangeSpliterator(int from, int to) {
+        return new Spliterator.OfInt() {
 
             private int index = from;
 
             @Override
-            public boolean tryAdvance(Consumer<? super Integer> action) {
+            public boolean tryAdvance(IntConsumer action) {
                 if(index < to) {
                     action.accept(index++);
                     return true;
@@ -73,7 +73,7 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
             }
 
             @Override
-            public Spliterator<Integer> trySplit() {
+            public Spliterator.OfInt trySplit() {
                 var middle = from + (to - from) / 2;
                 if (middle == index) {
                     return null;
@@ -119,6 +119,7 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
 
     @SuppressWarnings("preview")
     public <A, B> Gatherer<A, Void, B> times(IndexedFunction<A, B> function){
+        Objects.requireNonNull(function);
         return Gatherer.of(
                 Gatherer.Integrator.ofGreedy(
                     ((_, element, downstream) -> {
@@ -132,6 +133,10 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
                     })
                 )
         );
+    }
+
+    public IntStream intStream() {
+        return StreamSupport.intStream(rangeSpliterator(from, to), false);
     }
 
     @Override
