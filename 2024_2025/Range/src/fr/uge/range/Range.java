@@ -120,15 +120,17 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
     @SuppressWarnings("preview")
     public <A, B> Gatherer<A, Void, B> times(IndexedFunction<A, B> function){
         return Gatherer.of(
-                ((_, element, downstream) -> {
-                    for (var index : this){
-                        if(downstream.isRejecting()){
-                            return false;
+                Gatherer.Integrator.ofGreedy(
+                    ((_, element, downstream) -> {
+                        for (var index : this){
+                            if(downstream.isRejecting()){
+                                return false;
+                            }
+                            downstream.push(function.apply(element, index));
                         }
-                        downstream.push(function.apply(element, index));
-                    }
-                    return true;
-                })
+                        return true;
+                    })
+                )
         );
     }
 
