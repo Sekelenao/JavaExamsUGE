@@ -867,8 +867,6 @@ public class RangeTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q7 {
         @Test
@@ -895,6 +893,16 @@ public class RangeTest {
                 }
                 assertEquals(999_998, sum);
             });
+        }
+
+        @Test
+        public void moreTest() {
+            var range1 = Range.of(-154, -56);
+            var range2 = Range.of(-154, 565);
+            assertAll(
+                    () -> assertEquals(26, range1.indexOf(-128)),
+                    () -> assertEquals(389, range2.indexOf(235))
+            );
         }
 
         @Test
@@ -950,6 +958,7 @@ public class RangeTest {
         }
     }
 
+    /*
 
     @Nested
     public class Q8 {

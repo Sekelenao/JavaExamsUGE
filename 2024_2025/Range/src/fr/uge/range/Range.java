@@ -74,7 +74,7 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
 
             @Override
             public Spliterator.OfInt trySplit() {
-                var middle = from + (to - from) / 2;
+                var middle = (to - from) / 2 + from;
                 if (middle == index) {
                     return null;
                 }
@@ -137,6 +137,21 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
 
     public IntStream intStream() {
         return StreamSupport.intStream(rangeSpliterator(from, to), false);
+    }
+
+    @Override
+    public boolean contains(Object other) {
+        return other instanceof Integer value && value >= from && value < to;
+    }
+
+    @Override
+    public int indexOf(Object other) {
+        return other instanceof Integer value && (value >= from && value < to) ? value - from : -1;
+    }
+
+    @Override
+    public int lastIndexOf(Object other) {
+        return indexOf(other);
     }
 
     @Override
