@@ -145,6 +145,15 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
     }
 
     @Override
+    public boolean containsAll(Collection<?> collection) {
+        Objects.requireNonNull(collection);
+        if(collection instanceof Range other) {
+            return other.from >= from && other.to <= to;
+        }
+        return collection.stream().allMatch(this::contains);
+    }
+
+    @Override
     public int indexOf(Object other) {
         return other instanceof Integer value && (value >= from && value < to) ? value - from : -1;
     }
@@ -163,6 +172,37 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
             throw new IllegalArgumentException("Wrong range provided " + from + " > " + to);
         }
         return Range.of(from + fromIndex, from + toIndex);
+    }
+
+    public Set<Integer> asSet() {
+        return new AbstractSet<>() {
+
+            @Override
+            public int size() {
+                return Range.this.size();
+            }
+
+            @Override
+            public Iterator<Integer> iterator() {
+                return Range.this.iterator();
+            }
+
+            @Override
+            public Spliterator<Integer> spliterator() {
+                return Range.this.spliterator();
+            }
+
+            @Override
+            public boolean contains(Object other) {
+                return Range.this.contains(other);
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> collection) {
+                return Range.this.containsAll(collection);
+            }
+
+        };
     }
 
     @Override

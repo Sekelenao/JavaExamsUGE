@@ -633,20 +633,20 @@ public class RangeTest {
             assertEquals(List.of(new Pair(0, 0), new Pair(0, 1), new Pair(1, 0), new Pair(1, 1)), list);
         }
 
-//        @Test
-//        public void qualityOfImplementation() {
-//            var method = Arrays.stream(Range.class.getMethods())
-//                    .filter(m -> m.getName().equals("times"))
-//                    .findFirst().orElseThrow();
-//            var funType = (ParameterizedType) method.getGenericParameterTypes()[0];
-//            var typeArgument = funType.getActualTypeArguments();
-//            System.out.println(Arrays.toString(typeArgument));
-//            assertAll(
-//                    () -> assertTrue(((Class<?>) funType.getRawType()).accessFlags().contains(AccessFlag.PUBLIC)),
-//                    () -> assertEquals(2, typeArgument.length),
-//                    () -> assertTrue(Arrays.stream(typeArgument).noneMatch(t -> t instanceof TypeVariable<?>))
-//            );
-//        }
+        @Test
+        public void qualityOfImplementation() {
+            var method = Arrays.stream(Range.class.getMethods())
+                    .filter(m -> m.getName().equals("times"))
+                    .findFirst().orElseThrow();
+            var funType = (ParameterizedType) method.getGenericParameterTypes()[0];
+            var typeArgument = funType.getActualTypeArguments();
+            System.out.println(Arrays.toString(typeArgument));
+            assertAll(
+                    () -> assertTrue(((Class<?>) funType.getRawType()).accessFlags().contains(AccessFlag.PUBLIC)),
+                    () -> assertEquals(2, typeArgument.length),
+                    () -> assertTrue(Arrays.stream(typeArgument).noneMatch(t -> t instanceof TypeVariable<?>))
+            );
+        }
     }
 
     @Nested
@@ -1188,8 +1188,6 @@ public class RangeTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q9 {
         @Test
@@ -1319,5 +1317,4 @@ public class RangeTest {
         }
     }
 
-     */
 }
