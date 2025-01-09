@@ -1,11 +1,8 @@
 package fr.uge.range;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.function.*;
+import java.util.stream.*;
 
 public final class Range extends AbstractList<Integer> implements Iterable<Integer>, RandomAccess {
 
@@ -118,6 +115,21 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
     @Override
     public Stream<Integer> stream() {
         return StreamSupport.stream(rangeSpliterator(from, to), false);
+    }
+
+    @SuppressWarnings("preview")
+    public <A, B> Gatherer<A, Void, B> times(IndexedFunction<A, B> function){
+        return Gatherer.of(
+                ((_, element, downstream) -> {
+                    for (var index : this){
+                        if(downstream.isRejecting()){
+                            return false;
+                        }
+                        downstream.push(function.apply(element, index));
+                    }
+                    return true;
+                })
+        );
     }
 
     @Override

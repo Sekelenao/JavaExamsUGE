@@ -546,8 +546,6 @@ public class RangeTest {
         }
     }
 
-    /*
-
     @Nested
     public class Q5 {
         @Test
@@ -642,7 +640,7 @@ public class RangeTest {
                     .findFirst().orElseThrow();
             var funType = (ParameterizedType) method.getGenericParameterTypes()[0];
             var typeArgument = funType.getActualTypeArguments();
-
+            System.out.println(Arrays.toString(typeArgument));
             assertAll(
                     () -> assertTrue(((Class<?>) funType.getRawType()).accessFlags().contains(AccessFlag.PUBLIC)),
                     () -> assertEquals(2, typeArgument.length),
@@ -650,6 +648,8 @@ public class RangeTest {
             );
         }
     }
+
+    /*
 
 
     @Nested
