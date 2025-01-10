@@ -118,7 +118,7 @@ public final class Range extends AbstractList<Integer> implements Iterable<Integ
     }
 
     @SuppressWarnings("preview")
-    public <A, B> Gatherer<A, Void, B> times(IndexedFunction<A, B> function){
+    public <A, B> Gatherer<A, Void, B> times(IndexedFunction<? super A, ? extends B> function){
         Objects.requireNonNull(function);
         return Gatherer.of(
                 Gatherer.Integrator.ofGreedy(
