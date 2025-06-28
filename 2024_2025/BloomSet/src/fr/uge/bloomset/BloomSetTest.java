@@ -564,8 +564,6 @@ public class BloomSetTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q6 {
     @Test
@@ -925,6 +923,7 @@ public class BloomSetTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q7 {

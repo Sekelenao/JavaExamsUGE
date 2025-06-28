@@ -1,11 +1,14 @@
 package fr.uge.bloomset;
 
+import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 
-public final class BloomSet<T> {
+public final class BloomSet<T> extends AbstractSet<T> {
 
     private static final int BLOOM_SET_SIZE = 8;
 
@@ -20,9 +23,13 @@ public final class BloomSet<T> {
         this.elements = (T[]) new Object[BLOOM_SET_SIZE];
     }
 
+    private boolean isNotValidIndexForNextElement(int index){
+        return index < BLOOM_SET_SIZE && elements[index] != null;
+    }
+
     private int findNextIndex(){
         int index = 0;
-        while (index < BLOOM_SET_SIZE && elements[index] != null){
+        while (isNotValidIndexForNextElement(index)){
             index++;
         }
         return index;
@@ -51,7 +58,7 @@ public final class BloomSet<T> {
             elements[index] = element;
             return true;
         }
-        while (index < BLOOM_SET_SIZE && elements[index] != null){
+        while (isNotValidIndexForNextElement(index)){
             if(elements[index++].equals(element)){
                 return false;
             }
@@ -80,7 +87,7 @@ public final class BloomSet<T> {
         if((hash & bloomHash) != hash){
             return false;
         }
-        while (index < BLOOM_SET_SIZE && elements[index] != null){
+        while (isNotValidIndexForNextElement(index)){
             if(element.equals(elements[index++])){
                 return true;
             }
@@ -88,6 +95,29 @@ public final class BloomSet<T> {
         return false;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        if(elementsAsSet != null){
+            return Collections.unmodifiableSet(elementsAsSet).iterator();
+        }
+        return new Iterator<>() {
 
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return isNotValidIndexForNextElement(index);
+            }
+
+            @Override
+            public T next() {
+                if(!hasNext()){
+                    throw new NoSuchElementException();
+                }
+                return elements[index++];
+            }
+
+        };
+    }
 
 }
