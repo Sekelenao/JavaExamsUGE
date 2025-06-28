@@ -45,10 +45,14 @@ public final class BloomSet<T> extends AbstractSet<T> {
         return elementsAsSet.add(element);
     }
 
+    private boolean isSetImplementation(){
+        return elementsAsSet != null;
+    }
+
     @Override
     public boolean add(T element) {
         Objects.requireNonNull(element);
-        if(elementsAsSet != null){
+        if(isSetImplementation()){
             return elementsAsSet.add(element);
         }
         int index = 0;
@@ -76,7 +80,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
 
     @Override
     public int size(){
-        if(elementsAsSet != null){
+        if(isSetImplementation()){
             return elementsAsSet.size();
         }
         return nextEmptyIndex();
@@ -85,7 +89,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
     @Override
     public boolean contains(Object element){
         Objects.requireNonNull(element);
-        if(elementsAsSet != null){
+        if(isSetImplementation()){
             return elementsAsSet.contains(element);
         }
         int index = 0;
@@ -103,7 +107,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
 
     @Override
     public Iterator<T> iterator() {
-        if(elementsAsSet != null){
+        if(isSetImplementation()){
             return Collections.unmodifiableSet(elementsAsSet).iterator();
         }
         return new Iterator<>() {
@@ -128,16 +132,16 @@ public final class BloomSet<T> extends AbstractSet<T> {
 
     @Override
     public boolean isEmpty() {
-        return bloomHash == 0 && elementsAsSet == null && elements[0] == null;
+        return bloomHash == 0 && !isSetImplementation() && elements[0] == null;
     }
 
     @Override
     public boolean equals(Object other) {
         if(other instanceof BloomSet<?> otherBloomSet){
-            if(elementsAsSet != null && otherBloomSet.elementsAsSet != null){
+            if(isSetImplementation() && otherBloomSet.isSetImplementation()){
                 return elementsAsSet.equals(otherBloomSet.elementsAsSet);
             }
-            if(elements != null && otherBloomSet.elements != null && bloomHash == otherBloomSet.bloomHash){
+            if(!isSetImplementation() && !otherBloomSet.isSetImplementation() && bloomHash == otherBloomSet.bloomHash){
                 return Arrays.stream(elements).takeWhile(Objects::nonNull).allMatch(otherBloomSet::contains);
             }
             return false;
@@ -158,7 +162,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
     public Spliterator<T> spliterator() {
         return new Spliterator<>() {
 
-            private final Spliterator<T> spliterator = elementsAsSet != null ?
+            private final Spliterator<T> spliterator = isSetImplementation() ?
                 elementsAsSet.spliterator() : Arrays.spliterator(elements, 0, nextEmptyIndex());
 
             @Override
@@ -179,7 +183,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
             @Override
             public int characteristics() {
                 var defaultCharacteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
-                if(elementsAsSet != null){
+                if(isSetImplementation()){
                     return spliterator.characteristics() | defaultCharacteristics;
                 }
                 return defaultCharacteristics | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
