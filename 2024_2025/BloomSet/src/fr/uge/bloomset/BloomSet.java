@@ -52,7 +52,7 @@ public final class BloomSet<T> {
             return false;
         }
         while (index < BLOOM_SET_SIZE && elements[index] != null){
-            if(elements[index++].equals(element)){
+            if(element.equals(elements[index++])){
                 return true;
             }
         }
