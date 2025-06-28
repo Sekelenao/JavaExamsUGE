@@ -120,4 +120,9 @@ public final class BloomSet<T> extends AbstractSet<T> {
         };
     }
 
+    @Override
+    public boolean isEmpty() {
+        return bloomHash == 0 && elementsAsSet == null && elements[0] == null;
+    }
+
 }

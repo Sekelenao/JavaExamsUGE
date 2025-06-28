@@ -923,8 +923,6 @@ public class BloomSetTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q7 {
     @Test
@@ -951,6 +949,24 @@ public class BloomSetTest {
     }
 
     @Test
+    public void isNotEmptyWithAnEmptyStringBonus() {
+
+      var bloomSet = new BloomSet<>();
+      for(var i = 0; i < 10; i++) {
+        var zeroHashElement = new Object() {
+
+          @Override
+          public int hashCode() {
+            return 0;
+          }
+
+        };
+        bloomSet.add(zeroHashElement);
+      }
+      assertFalse(bloomSet.isEmpty());
+    }
+
+    @Test
     public void hashSetBackedIsNotEmpty() {
       var bloomSet = new BloomSet<Integer>();
       for(var i = 0; i < 8 + 1; i++) {
@@ -960,6 +976,8 @@ public class BloomSetTest {
       assertFalse(bloomSet.isEmpty());
     }
   }
+
+  /*
 
   @Nested
   public class Q8 {
