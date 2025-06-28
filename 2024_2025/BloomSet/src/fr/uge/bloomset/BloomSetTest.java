@@ -1148,8 +1148,6 @@ public class BloomSetTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q9 {
 
@@ -1505,5 +1503,4 @@ public class BloomSetTest {
     }
   }
 
-   */
 }

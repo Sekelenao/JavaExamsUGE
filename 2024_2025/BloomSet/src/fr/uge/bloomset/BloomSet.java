@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
 public final class BloomSet<T> extends AbstractSet<T> {
 
@@ -152,4 +154,37 @@ public final class BloomSet<T> extends AbstractSet<T> {
         return false;
     }
 
+    @Override
+    public Spliterator<T> spliterator() {
+        return new Spliterator<>() {
+
+            private final Spliterator<T> spliterator = elementsAsSet != null ?
+                elementsAsSet.spliterator() : Arrays.spliterator(elements, 0, nextEmptyIndex());
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                return spliterator.tryAdvance(action);
+            }
+
+            @Override
+            public Spliterator<T> trySplit() {
+                return spliterator.trySplit();
+            }
+
+            @Override
+            public long estimateSize() {
+                return spliterator.estimateSize();
+            }
+
+            @Override
+            public int characteristics() {
+                var defaultCharacteristics = Spliterator.DISTINCT | Spliterator.NONNULL;
+                if(elementsAsSet != null){
+                    return spliterator.characteristics() | defaultCharacteristics;
+                }
+                return defaultCharacteristics | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.ORDERED;
+            }
+
+        };
+    }
 }
