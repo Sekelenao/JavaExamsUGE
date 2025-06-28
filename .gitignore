@@ -4,7 +4,6 @@ out/
 target/
 .settings/
 subject/
-target/
 
 #Files
 .classpath
