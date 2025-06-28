@@ -1,6 +1,7 @@
 package fr.uge.bloomset;
 
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,13 +24,13 @@ public final class BloomSet<T> extends AbstractSet<T> {
         this.elements = (T[]) new Object[BLOOM_SET_SIZE];
     }
 
-    private boolean isNotValidIndexForNextElement(int index){
+    private boolean indexIsNotEmpty(int index){
         return index < BLOOM_SET_SIZE && elements[index] != null;
     }
 
-    private int findNextIndex(){
+    private int nextEmptyIndex(){
         int index = 0;
-        while (isNotValidIndexForNextElement(index)){
+        while (indexIsNotEmpty(index)){
             index++;
         }
         return index;
@@ -42,6 +43,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
         return elementsAsSet.add(element);
     }
 
+    @Override
     public boolean add(T element) {
         Objects.requireNonNull(element);
         if(elementsAsSet != null){
@@ -51,14 +53,14 @@ public final class BloomSet<T> extends AbstractSet<T> {
         var hash = element.hashCode();
         if((hash & bloomHash) != hash){
             bloomHash |= hash;
-            index = findNextIndex();
+            index = nextEmptyIndex();
             if(index == BLOOM_SET_SIZE){
                 return switchImplementationAndAdd(element);
             }
             elements[index] = element;
             return true;
         }
-        while (isNotValidIndexForNextElement(index)){
+        while (indexIsNotEmpty(index)){
             if(elements[index++].equals(element)){
                 return false;
             }
@@ -70,13 +72,15 @@ public final class BloomSet<T> extends AbstractSet<T> {
         return true;
     }
 
+    @Override
     public int size(){
         if(elementsAsSet != null){
             return elementsAsSet.size();
         }
-        return findNextIndex();
+        return nextEmptyIndex();
     }
 
+    @Override
     public boolean contains(Object element){
         Objects.requireNonNull(element);
         if(elementsAsSet != null){
@@ -87,7 +91,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
         if((hash & bloomHash) != hash){
             return false;
         }
-        while (isNotValidIndexForNextElement(index)){
+        while (indexIsNotEmpty(index)){
             if(element.equals(elements[index++])){
                 return true;
             }
@@ -106,7 +110,7 @@ public final class BloomSet<T> extends AbstractSet<T> {
 
             @Override
             public boolean hasNext() {
-                return isNotValidIndexForNextElement(index);
+                return indexIsNotEmpty(index);
             }
 
             @Override
@@ -123,6 +127,29 @@ public final class BloomSet<T> extends AbstractSet<T> {
     @Override
     public boolean isEmpty() {
         return bloomHash == 0 && elementsAsSet == null && elements[0] == null;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if(other instanceof BloomSet<?> otherBloomSet){
+            if(elementsAsSet != null && otherBloomSet.elementsAsSet != null){
+                return elementsAsSet.equals(otherBloomSet.elementsAsSet);
+            }
+            if(elements != null && otherBloomSet.elements != null && bloomHash == otherBloomSet.bloomHash){
+                return Arrays.stream(elements).takeWhile(Objects::nonNull).allMatch(otherBloomSet::contains);
+            }
+            return false;
+        }
+        if(other instanceof Set<?> otherSet){
+            int index = 0;
+            while (indexIsNotEmpty(index)){
+                if(!otherSet.contains(elements[index++])){
+                    return false;
+                }
+            }
+            return otherSet.size() == index;
+        }
+        return false;
     }
 
 }
