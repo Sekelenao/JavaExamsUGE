@@ -2,6 +2,7 @@ package fr.uge.partitionvec;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public final class PartitionVec<T> {
 
@@ -23,6 +24,16 @@ public final class PartitionVec<T> {
 
     public int size(){
         return nextEmptyIndex;
+    }
+
+    @Override
+    public String toString() {
+        if(values == null){
+            return "[]";
+        }
+        return Arrays.stream(values, 0, nextEmptyIndex)
+            .map(String::valueOf)
+            .collect(Collectors.joining(", ", "[", "]"));
     }
 
 }
