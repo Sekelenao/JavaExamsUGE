@@ -1,5 +1,6 @@
 package fr.uge.partitionvec;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,8 +41,7 @@ public final class PartitionVec<T> {
             .collect(Collectors.joining(", ", "[", "]"));
     }
 
-    public List<T> partition(Predicate<? super T> predicate){
-        Objects.requireNonNull(predicate);
+    private List<T> partitionAndReturnLeftPart(Predicate<? super T> predicate){
         if(values == null){
             return Collections.emptyList();
         }
@@ -57,6 +57,27 @@ public final class PartitionVec<T> {
             }
         }
         return Arrays.asList(values).subList(0, limit);
+    }
+
+    public List<T> partition(Predicate<? super T> predicate){
+        Objects.requireNonNull(predicate);
+        final class LeftView extends AbstractList<T> {
+
+            private final List<T> leftPart = partitionAndReturnLeftPart(predicate);
+
+            @Override
+            public T get(int index) {
+                Objects.checkIndex(index, leftPart.size());
+                return leftPart.get(index);
+            }
+
+            @Override
+            public int size() {
+                return leftPart.size();
+            }
+
+        }
+        return new LeftView();
     }
 
 }
