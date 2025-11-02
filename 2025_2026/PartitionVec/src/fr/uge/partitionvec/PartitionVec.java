@@ -2,7 +2,6 @@ package fr.uge.partitionvec;
 
 import java.util.AbstractList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
@@ -32,9 +31,9 @@ public final class PartitionVec<T> {
         return nextEmptyIndex;
     }
 
-    private List<T> partitionAndReturnLeftPart(Predicate<? super T> predicate){
+    private int partitionAndReturnLimit(Predicate<? super T> predicate){
         if(values == null){
-            return Collections.emptyList();
+            return 0;
         }
         int i = 0;
         int limit = nextEmptyIndex;
@@ -47,33 +46,65 @@ public final class PartitionVec<T> {
                 values[limit] = actualElement;
             }
         }
-        return Arrays.asList(values).subList(0, limit);
+        return limit;
     }
 
-    public List<T> partition(Predicate<? super T> predicate){
+    public interface PartitionView<T> extends List<T> {
+        PartitionView<T> otherPartition();
+    }
+
+    public PartitionView<T> partition(Predicate<? super T> predicate){
         Objects.requireNonNull(predicate);
-        final class LeftView extends AbstractList<T> {
+        var vec = PartitionVec.this;
+        final class PartitionViewImpl extends AbstractList<T> implements PartitionVec.PartitionView<T> {
 
-            private final List<T> leftPart = partitionAndReturnLeftPart(predicate);
+            private final int start;
 
-            private final int viewVersion = ++PartitionVec.this.version;
+            private final int end;
+
+            private final int max;
+
+            private final int currentViewVersion;
+
+            private PartitionViewImpl(int start, int end, int max, int version){
+                this.currentViewVersion = version;
+                this.start = start;
+                this.end = end;
+                this.max = max;
+            }
+
+            private PartitionViewImpl childViewWithFollowingBounds(int start, int end){
+                return new PartitionViewImpl(start, end, max, currentViewVersion);
+            }
+
+            private void checkVersion(){
+                if(vec.version != currentViewVersion){
+                    throw new IllegalStateException("The PartitionVec has been modified since this view creation");
+                }
+            }
 
             @Override
             public T get(int index) {
-                Objects.checkIndex(index, leftPart.size());
-                if(PartitionVec.this.version != viewVersion){
-                    throw new IllegalStateException("The PartitionVec has been modified since this view creation");
-                }
-                return leftPart.get(index);
+                Objects.checkIndex(index, size());
+                checkVersion();
+                return vec.values[start + index];
             }
 
             @Override
             public int size() {
-                return leftPart.size();
+                return end - start;
+            }
+
+            public PartitionVec.PartitionView<T> otherPartition(){
+                checkVersion();
+                if(start == 0){
+                    return childViewWithFollowingBounds(end, max);
+                }
+                return childViewWithFollowingBounds(0, start);
             }
 
         }
-        return new LeftView();
+        return new PartitionViewImpl(0, partitionAndReturnLimit(predicate), vec.nextEmptyIndex, ++vec.version);
     }
 
     @Override
