@@ -1,7 +1,6 @@
 package fr.uge.partitionvec;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -98,12 +97,17 @@ public final class PartitionVec<T> implements Collection<T> {
     public Iterator<T> iterator() {
         return new Iterator<>() {
 
+            private final int version = PartitionVec.this.version;
+
             private final int size = nextEmptyIndex;
 
             private int index = 0;
 
             @Override
             public boolean hasNext() {
+                if(version != PartitionVec.this.version){
+                    throw new IllegalStateException();
+                }
                 return index < size;
             }
 
