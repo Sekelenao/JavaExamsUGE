@@ -1,7 +1,6 @@
 package fr.uge.partitionvec;
 
 import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +13,8 @@ public final class PartitionVec<T> {
     private T[] values;
 
     private int nextEmptyIndex;
+
+    private int version;
 
     @SuppressWarnings("unchecked")
     public void add(T element){
@@ -29,16 +30,6 @@ public final class PartitionVec<T> {
 
     public int size(){
         return nextEmptyIndex;
-    }
-
-    @Override
-    public String toString() {
-        if(values == null){
-            return "[]";
-        }
-        return Arrays.stream(values, 0, nextEmptyIndex)
-            .map(String::valueOf)
-            .collect(Collectors.joining(", ", "[", "]"));
     }
 
     private List<T> partitionAndReturnLeftPart(Predicate<? super T> predicate){
@@ -65,9 +56,14 @@ public final class PartitionVec<T> {
 
             private final List<T> leftPart = partitionAndReturnLeftPart(predicate);
 
+            private final int viewVersion = ++PartitionVec.this.version;
+
             @Override
             public T get(int index) {
                 Objects.checkIndex(index, leftPart.size());
+                if(PartitionVec.this.version != viewVersion){
+                    throw new IllegalStateException("The PartitionVec has been modified since this view creation");
+                }
                 return leftPart.get(index);
             }
 
@@ -78,6 +74,16 @@ public final class PartitionVec<T> {
 
         }
         return new LeftView();
+    }
+
+    @Override
+    public String toString() {
+        if(values == null){
+            return "[]";
+        }
+        return Arrays.stream(values, 0, nextEmptyIndex)
+            .map(String::valueOf)
+            .collect(Collectors.joining(", ", "[", "]"));
     }
 
 }
