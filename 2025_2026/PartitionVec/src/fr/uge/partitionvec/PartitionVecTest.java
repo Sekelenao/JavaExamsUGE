@@ -267,8 +267,6 @@ public final class PartitionVecTest {
         }
     }
 
-    /*
-
     @Nested
     public final class Q3 {
         @Test
@@ -420,6 +418,8 @@ public final class PartitionVecTest {
             assertThrows(NullPointerException.class, () -> vec.partition(null));
         }
     }
+
+    /*
 
     @Nested
     public final class Q4 {
