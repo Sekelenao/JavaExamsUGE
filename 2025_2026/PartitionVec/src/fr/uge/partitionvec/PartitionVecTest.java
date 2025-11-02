@@ -873,8 +873,6 @@ public final class PartitionVecTest {
 
     }
 
-    /*
-
     @Nested
     public final class Q8 {
         @Test
@@ -1183,6 +1181,8 @@ public final class PartitionVecTest {
             });
         }
     }
+
+    /*
 
     @Nested
     public final class Q9 {

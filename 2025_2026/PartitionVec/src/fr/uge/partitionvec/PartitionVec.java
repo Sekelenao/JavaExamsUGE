@@ -1,13 +1,18 @@
 package fr.uge.partitionvec;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public final class PartitionVec<T> {
+public final class PartitionVec<T> implements Collection<T> {
 
     private T[] values;
 
@@ -16,7 +21,7 @@ public final class PartitionVec<T> {
     private int version;
 
     @SuppressWarnings("unchecked")
-    public void add(T element){
+    public boolean add(T element){
         Objects.requireNonNull(element);
         if (values == null) {
             this.values = (T[]) new Object[4];
@@ -25,10 +30,103 @@ public final class PartitionVec<T> {
             values = Arrays.copyOf(values, values.length * 2);
         }
         values[nextEmptyIndex++] = element;
+        return true;
     }
 
+    @Override
+    public boolean addAll(Collection<? extends T> other) {
+        Objects.requireNonNull(other);
+        var changed = false;
+        for (var value : other) {
+            add(value);
+            changed = true;
+        }
+        return changed;
+    }
+
+    @Override
     public int size(){
         return nextEmptyIndex;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return nextEmptyIndex == 0;
+    }
+
+    @Override
+    public boolean contains(Object object) {
+        if(object == null){
+            return false;
+        }
+        for (int i = 0; i < nextEmptyIndex; i++) {
+            if(values[i].equals(object)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> other) {
+        Objects.requireNonNull(other);
+        var hashset = new HashSet<>(Arrays.asList(values).subList(0, nextEmptyIndex));
+        return hashset.containsAll(other);
+    }
+
+    @Override
+    public boolean remove(Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> other) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> other) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+
+            private final int size = nextEmptyIndex;
+
+            private int index = 0;
+
+            @Override
+            public boolean hasNext() {
+                return index < size;
+            }
+
+            @Override
+            public T next() {
+                if(!hasNext()){
+                    throw new NoSuchElementException();
+                }
+                return values[index++];
+            }
+
+        };
+    }
+
+    @Override
+    public Object[] toArray() {
+        return Arrays.copyOf(values, nextEmptyIndex);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <A> A[] toArray(A[] array) {
+        return (A[]) Arrays.copyOf(values, nextEmptyIndex, array.getClass());
     }
 
     private int partitionAndReturnLimit(Predicate<? super T> predicate){
