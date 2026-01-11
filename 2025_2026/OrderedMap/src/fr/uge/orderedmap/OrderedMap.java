@@ -2,11 +2,14 @@ package fr.uge.orderedmap;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Spliterator;
+import java.util.Spliterators;
 
 public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
@@ -67,7 +70,14 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
                 return entries.length;
             }
 
+            @Override
+            public Spliterator<Entry<K, V>> spliterator() {
+                return Spliterators.spliterator(entries, Spliterator.ORDERED | Spliterator.NONNULL | Spliterator.IMMUTABLE);
+            }
+
         };
     }
+
+
 
 }
