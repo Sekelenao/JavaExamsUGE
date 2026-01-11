@@ -19,6 +19,7 @@ public final class PartitionVec<T> implements Collection<T> {
 
     private int version;
 
+    @Override
     @SuppressWarnings("unchecked")
     public boolean add(T element){
         Objects.requireNonNull(element);
