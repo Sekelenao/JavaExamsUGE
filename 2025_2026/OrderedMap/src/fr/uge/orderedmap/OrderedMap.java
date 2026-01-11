@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.function.Consumer;
 
 public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
@@ -136,4 +137,77 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
         return false;
     }
 
+    @Override
+    public Set<K> keySet() {
+        return new AbstractSet<>() {
+
+            @Override
+            public Iterator<K> iterator() {
+                return new Iterator<>() {
+
+                    private final Iterator<Map.Entry<K, V>> entryIterator = entrySet().iterator();
+
+                    @Override
+                    public boolean hasNext() {
+                        return entryIterator.hasNext();
+                    }
+
+                    @Override
+                    public K next() {
+                        if(!hasNext()){
+                            throw new NoSuchElementException();
+                        }
+                        return entryIterator.next().getKey();
+                    }
+                };
+            }
+
+            @Override
+            public int size() {
+                return entries.length;
+            }
+
+            @Override
+            public boolean contains(Object object) {
+                Objects.requireNonNull(object);
+                return OrderedMap.this.containsKey(object);
+            }
+
+            private static final class KeySpliterator<K> implements Spliterator<K> {
+
+                private final Spliterator<? extends Map.Entry<K, ?>> entrySpliterator;
+
+                private KeySpliterator(Spliterator<? extends Map.Entry<K, ?>> entrySpliterator){
+                    this.entrySpliterator = Objects.requireNonNull(entrySpliterator);
+                }
+
+                @Override
+                public boolean tryAdvance(Consumer<? super K> action) {
+                    return entrySpliterator.tryAdvance(entry -> action.accept(entry.getKey()));
+                }
+
+                @Override
+                public Spliterator<K> trySplit() {
+                    return new KeySpliterator<>(entrySpliterator.trySplit());
+                }
+
+                @Override
+                public long estimateSize() {
+                    return entrySpliterator.estimateSize();
+                }
+
+                @Override
+                public int characteristics() {
+                    return entrySpliterator.characteristics();
+                }
+
+            }
+
+            @Override
+            public Spliterator<K> spliterator() {
+                return new KeySpliterator<>(entrySet().spliterator());
+            }
+
+        };
+    }
 }
