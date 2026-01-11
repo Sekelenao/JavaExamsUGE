@@ -188,7 +188,11 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
                 @Override
                 public Spliterator<K> trySplit() {
-                    return new KeySpliterator<>(entrySpliterator.trySplit());
+                    var split = entrySpliterator.trySplit();
+                    if (split == null) {
+                        return null;
+                    }
+                    return new KeySpliterator<>(split);
                 }
 
                 @Override
@@ -198,7 +202,7 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
                 @Override
                 public int characteristics() {
-                    return entrySpliterator.characteristics();
+                    return entrySpliterator.characteristics() | Spliterator.DISTINCT;
                 }
 
             }
