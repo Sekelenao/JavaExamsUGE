@@ -1166,8 +1166,6 @@ public final class OrderedMapTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q4 {
     @SafeVarargs
@@ -1401,6 +1399,7 @@ public final class OrderedMapTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q5 {

@@ -76,8 +76,22 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
             }
 
         };
+
     }
 
-
+    public static int[] indexArray(Map.Entry<?, ?>[] entries) {
+        Objects.requireNonNull(entries);
+        var arraySize = entries.length;
+        var indexArraySize = arraySize * 2;
+        var indexArray = new int[indexArraySize];
+        for (var i = 0; i < arraySize; i++) {
+            var targetIndex = Math.floorMod(entries[i].getKey().hashCode(), indexArraySize);
+            while (indexArray[targetIndex] != 0) {
+                targetIndex = Math.floorMod((targetIndex + 1), indexArray.length);
+            }
+            indexArray[targetIndex] = i + 1;
+        }
+        return indexArray;
+    }
 
 }
