@@ -115,4 +115,25 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
         }
         return null;
     }
+
+    @Override
+    public boolean containsKey(Object key) {
+        if(entries.length == 0){
+            return false;
+        }
+        if(indexArray == null){
+            indexArray = indexArray(entries);
+        }
+        var hash = Math.floorMod(key.hashCode(), indexArray.length);
+        while (indexArray[hash] != 0) {
+            var entryIndex = indexArray[hash] - 1;
+            var entry = entries[entryIndex];
+            if (entry.getKey().equals(key)) {
+                return true;
+            }
+            hash = (hash + 1) % indexArray.length;
+        }
+        return false;
+    }
+
 }
