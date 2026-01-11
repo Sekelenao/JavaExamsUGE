@@ -1,14 +1,18 @@
 package fr.uge.orderedmap;
 
 import java.util.AbstractMap;
+import java.util.AbstractSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Set;
 
-public final class OrderedMap<K, V> {
+public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
-    private final Map.Entry<? extends K, ? extends V>[] entries;
+    private final Map.Entry<K, V>[] entries;
 
-    private OrderedMap(Map.Entry<? extends K, ? extends V>[] entries) {
+    private OrderedMap(Map.Entry<K, V>[] entries) {
         this.entries = entries;
         super();
     }
@@ -17,7 +21,7 @@ public final class OrderedMap<K, V> {
     public static <K, V> OrderedMap<K, V> of(Map<? extends K, ? extends V> map) {
         Objects.requireNonNull(map);
         var nextEmptyIndex = 0;
-        var array = (Map.Entry<? extends K, ? extends V>[]) new Map.Entry<?, ?>[map.size()];
+        var array = (Map.Entry<K, V>[]) new Map.Entry<?, ?>[map.size()];
         for (var entry : map.entrySet()) {
             var key = Objects.requireNonNull(entry.getKey());
             var value = entry.getValue();
@@ -26,8 +30,44 @@ public final class OrderedMap<K, V> {
         return new OrderedMap<>(array);
     }
 
+    @Override
     public int size() {
         return entries.length;
+    }
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+
+        return new AbstractSet<>() {
+
+            @Override
+            public Iterator<Entry<K, V>> iterator() {
+                return new Iterator<>() {
+
+                    private int index = 0;
+
+                    @Override
+                    public boolean hasNext() {
+                        return index < entries.length;
+                    }
+
+                    @Override
+                    public Entry<K, V> next() {
+                        if(!hasNext()){
+                            throw new NoSuchElementException();
+                        }
+                        return entries[index++];
+                    }
+
+                };
+            }
+
+            @Override
+            public int size() {
+                return entries.length;
+            }
+
+        };
     }
 
 }
