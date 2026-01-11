@@ -1399,8 +1399,6 @@ public final class OrderedMapTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q5 {
     @Test
@@ -1742,6 +1740,7 @@ public final class OrderedMapTest {
     }
   }
 
+  /*
 
   @Nested
   public class Q6 {

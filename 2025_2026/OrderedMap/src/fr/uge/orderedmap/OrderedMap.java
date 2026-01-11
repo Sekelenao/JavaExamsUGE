@@ -2,7 +2,6 @@ package fr.uge.orderedmap;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -14,6 +13,8 @@ import java.util.Spliterators;
 public final class OrderedMap<K, V> extends AbstractMap<K, V> {
 
     private final Map.Entry<K, V>[] entries;
+
+    private int[] indexArray;
 
     private OrderedMap(Map.Entry<K, V>[] entries) {
         this.entries = entries;
@@ -94,4 +95,24 @@ public final class OrderedMap<K, V> extends AbstractMap<K, V> {
         return indexArray;
     }
 
+    @Override
+    public V get(Object key) {
+        Objects.requireNonNull(key);
+        if(entries.length == 0){
+            return null;
+        }
+        if(indexArray == null){
+            indexArray = indexArray(entries);
+        }
+        var hash = Math.floorMod(key.hashCode(), indexArray.length);
+        while (indexArray[hash] != 0) {
+            var entryIndex = indexArray[hash] - 1;
+            var entry = entries[entryIndex];
+            if (entry.getKey().equals(key)) {
+                return entry.getValue();
+            }
+            hash = (hash + 1) % indexArray.length;
+        }
+        return null;
+    }
 }
