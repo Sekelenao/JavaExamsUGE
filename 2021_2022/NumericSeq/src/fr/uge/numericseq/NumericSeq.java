@@ -135,7 +135,7 @@ public final class NumericSeq<T> implements Iterable<T> {
         );
     }
 
-    private Spliterator<T> customSpliterator(int start, int end, long... array) {
+    private Spliterator<T> customSpliterator(int start, int end) {
         return new Spliterator<>() {
 
             private int index = start;
@@ -143,7 +143,7 @@ public final class NumericSeq<T> implements Iterable<T> {
             @Override
             public boolean tryAdvance(Consumer<? super T> action) {
                 if (index < end) {
-                    action.accept(from.apply(array[index++]));
+                    action.accept(from.apply(elements[index++]));
                     return true;
                 }
                 return false;
@@ -158,7 +158,7 @@ public final class NumericSeq<T> implements Iterable<T> {
                 if (middle == index) {
                     return null;
                 }
-                var spliterator = customSpliterator(index, middle, array);
+                var spliterator = customSpliterator(index, middle);
                 index = middle;
                 return spliterator;
             }
@@ -176,11 +176,11 @@ public final class NumericSeq<T> implements Iterable<T> {
 
     @Override
     public Spliterator<T> spliterator() {
-        return customSpliterator(0, elements.length, elements);
+        return customSpliterator(0, elements.length);
     }
 
     public Stream<T> stream() {
-        return StreamSupport.stream(customSpliterator(0, size, elements), false);
+        return StreamSupport.stream(customSpliterator(0, size), false);
     }
 
 }
