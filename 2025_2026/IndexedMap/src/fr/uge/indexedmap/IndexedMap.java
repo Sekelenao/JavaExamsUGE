@@ -2,7 +2,6 @@ package fr.uge.indexedmap;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -29,12 +28,7 @@ public final class IndexedMap<T> extends AbstractMap<Integer, T> {
     @SafeVarargs
     public static <E> IndexedMap<E> of(E... elements) {
         Objects.requireNonNull(elements);
-        var arraylist = new ArrayList<E>(elements.length);
-        for(var element : elements){
-            Objects.requireNonNull(element);
-            arraylist.add(element);
-        }
-        return new IndexedMap<>(arraylist);
+        return new IndexedMap<>(List.of(elements));
     }
 
     @Override
@@ -161,7 +155,7 @@ public final class IndexedMap<T> extends AbstractMap<Integer, T> {
 
             @Override
             public Spliterator<Entry<Integer, T>> trySplit() {
-                var middle = (start + end) >>> 1;
+                var middle = (index + end) >>> 1;
                 if(middle == index){
                     return null;
                 }
