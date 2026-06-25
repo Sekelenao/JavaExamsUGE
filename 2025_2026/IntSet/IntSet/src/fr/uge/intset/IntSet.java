@@ -2,6 +2,10 @@ package fr.uge.intset;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Spliterator;
+import java.util.function.IntConsumer;
+import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 public final class IntSet {
 
@@ -24,32 +28,81 @@ public final class IntSet {
         bitset[index >> 5] |= 1 << (index & 31);
     }
 
-    private void growIfNecessary(int bitsetIndex){
-        if (bitsetIndex >= bitset.length){
+    private void growIfNecessary(int bitsetIndex) {
+        if (bitsetIndex >= bitset.length) {
             bitset = Arrays.copyOf(bitset, Math.max(bitset.length * 2, bitsetIndex + 1));
         }
     }
 
-    public boolean add(int value){
-        if(value < 0) {
+    public boolean add(int value) {
+        if (value < 0) {
             throw new IllegalArgumentException("Value must be positive");
         }
         var bitsetIndex = value >> 5;
         growIfNecessary(bitsetIndex);
         var targetBitMask = 1 << (value & 31);
-        if((bitset[bitsetIndex] & targetBitMask) != 0){
+        if ((bitset[bitsetIndex] & targetBitMask) != 0) {
             return false;
         }
         bitset[bitsetIndex] |= targetBitMask;
         return true;
     }
 
-    public boolean contains(int value){
-        if(value < 0) {
+    public boolean contains(int value) {
+        if (value < 0) {
             throw new IllegalArgumentException("Value must be positive");
         }
         var bitsetIndex = value >> 5;
         return bitsetIndex < bitset.length && (bitset[bitsetIndex] & (1 << (value & 31))) != 0;
+    }
+
+    public Spliterator.OfInt spliterator() {
+        return new Spliterator.OfInt() {
+
+            private int index = -1;
+
+            private int bitpos;
+
+            private void moveToNextNonEmptyCell() {
+                do { index++; } while (index < bitset.length && bitset[index] == 0);
+                if (index < bitset.length) {
+                    bitpos = bitset[index];
+                }
+            }
+
+            @Override
+            public boolean tryAdvance(IntConsumer action) {
+                if (bitpos == 0) {
+                    moveToNextNonEmptyCell();
+                }
+                if (index >= bitset.length) {
+                    return false;
+                }
+                int bitIndex = Integer.numberOfTrailingZeros(bitpos);
+                action.accept((index << 5) + bitIndex);
+                bitpos &= (bitpos - 1); // Turn off the rightmost bit (S/O Brian Kernighan)
+                return true;
+            }
+
+            @Override
+            public Spliterator.OfInt trySplit() {
+                return null;
+            }
+
+            @Override
+            public long estimateSize() {
+                return Long.MAX_VALUE;
+            }
+
+            @Override
+            public int characteristics() {
+                return ORDERED | DISTINCT | NONNULL;
+            }
+        };
+    }
+
+    public IntStream stream() {
+        return StreamSupport.intStream(spliterator(), false);
     }
 
 }
