@@ -3,8 +3,11 @@ package fr.uge.intset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
+import java.util.StringJoiner;
 import java.util.function.IntConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -110,6 +113,19 @@ public final class IntSet {
 
     public IntStream stream() {
         return StreamSupport.intStream(spliterator(), false);
+    }
+
+    @Override
+    public String toString() {
+        var builder = new StringBuilder("[");
+        IntConsumer action = i -> {
+            if (builder.length() > 1) {
+                builder.append(", ");
+            }
+            builder.append(i); // StringBuilder is cool because it doesn't allocate a new String :)
+        };
+        spliterator().forEachRemaining(action);
+        return builder.append("]").toString();
     }
 
 }
