@@ -3,11 +3,8 @@ package fr.uge.intset;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Spliterator;
-import java.util.StringJoiner;
 import java.util.function.IntConsumer;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
