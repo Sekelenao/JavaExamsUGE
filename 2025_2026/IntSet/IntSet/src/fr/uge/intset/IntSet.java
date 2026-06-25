@@ -44,4 +44,12 @@ public final class IntSet {
         return true;
     }
 
+    public boolean contains(int value){
+        if(value < 0) {
+            throw new IllegalArgumentException("Value must be positive");
+        }
+        var bitsetIndex = value >> 5;
+        return bitsetIndex < bitset.length && (bitset[bitsetIndex] & (1 << (value & 31))) != 0;
+    }
+
 }
