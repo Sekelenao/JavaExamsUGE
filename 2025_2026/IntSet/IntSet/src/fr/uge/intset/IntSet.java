@@ -23,4 +23,17 @@ public final class IntSet {
         bitset[index >> 5] |= 1 << (index & 31);
     }
 
+    public boolean add(int value){
+        if(value < 0) {
+            throw new IllegalArgumentException("Value must be positive");
+        }
+        var bitsetIndex = value >> 5;
+        var targetBitMask = 1 << (value & 31);
+        if((bitset[bitsetIndex] & targetBitMask) != 0){
+            return false;
+        }
+        bitset[bitsetIndex] |= targetBitMask;
+        return true;
+    }
+
 }
