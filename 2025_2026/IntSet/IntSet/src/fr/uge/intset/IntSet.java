@@ -1,6 +1,7 @@
 package fr.uge.intset;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
@@ -96,8 +97,14 @@ public final class IntSet {
 
             @Override
             public int characteristics() {
-                return ORDERED | DISTINCT | NONNULL;
+                return ORDERED | DISTINCT | NONNULL | SORTED;
             }
+
+            @Override
+            public Comparator<? super Integer> getComparator() {
+                return null;
+            }
+
         };
     }
 
