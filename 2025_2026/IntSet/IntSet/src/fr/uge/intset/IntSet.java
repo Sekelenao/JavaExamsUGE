@@ -1,14 +1,19 @@
 package fr.uge.intset;
 
+import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.Set;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 import jdk.incubator.vector.*;
+import org.jspecify.annotations.NonNull;
 
 public final class IntSet {
 
@@ -142,6 +147,22 @@ public final class IntSet {
             totalBits += Integer.bitCount(bitset[i]);
         }
         return totalBits;
+    }
+
+    public Set<Integer> asSet() {
+        return new AbstractSet<>() {
+
+            @Override
+            public @NonNull Iterator<Integer> iterator() {
+                return Spliterators.iterator(IntSet.this.spliterator());
+            }
+
+            @Override
+            public int size() {
+                return bitCount();
+            }
+        };
+
     }
 
 }
