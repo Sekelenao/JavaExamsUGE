@@ -8,6 +8,8 @@ import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
+import jdk.incubator.vector.*;
+
 public final class IntSet {
 
     private static final int DEFAULT_CAPACITY = 4;
@@ -123,6 +125,23 @@ public final class IntSet {
         };
         spliterator().forEachRemaining(action);
         return builder.append("]").toString();
+    }
+
+    int bitCount() {
+        var species = IntVector.SPECIES_PREFERRED;
+        int upperBound = species.loopBound(bitset.length);
+        var sumVector = IntVector.zero(species);
+        int i = 0;
+        for (; i < upperBound; i += species.length()) {
+            var vector = IntVector.fromArray(species, bitset, i);
+            var counts = vector.lanewise(VectorOperators.BIT_COUNT);
+            sumVector = sumVector.add(counts);
+        }
+        int totalBits = sumVector.reduceLanes(VectorOperators.ADD);
+        for (; i < bitset.length; i++) {
+            totalBits += Integer.bitCount(bitset[i]);
+        }
+        return totalBits;
     }
 
 }
