@@ -154,12 +154,72 @@ public final class IntSet {
 
             @Override
             public @NonNull Iterator<Integer> iterator() {
-                return Spliterators.iterator(IntSet.this.spliterator());
+                return new Iterator<>() {
+
+                    private final Iterator<Integer> iterator = Spliterators.iterator(IntSet.this.spliterator());
+
+                    private int lastReturned = -1;
+
+                    @Override
+                    public boolean hasNext() {
+                        return iterator.hasNext();
+                    }
+
+                    @Override
+                    public @NonNull Integer next() {
+                        lastReturned = iterator.next();
+                        return lastReturned;
+                    }
+
+                    @Override
+                    public void remove() {
+                        if (lastReturned == -1) {
+                            throw new IllegalStateException();
+                        }
+                        var bitsetIndex = lastReturned >> 5;
+                        IntSet.this.bitset[bitsetIndex] &= ~(1 << (lastReturned & 31));
+                        lastReturned = -1;
+                    }
+
+                };
             }
 
             @Override
             public int size() {
                 return bitCount();
+            }
+
+            @Override
+            public boolean contains(Object value) {
+                return value instanceof Integer integer && integer >= 0 && IntSet.this.contains(integer);
+            }
+
+            @Override
+            public boolean add(Integer integer) {
+                return IntSet.this.add(integer);
+            }
+
+            @Override
+            public boolean remove(Object value) {
+                Objects.requireNonNull(value);
+                if (!(value instanceof Integer integer) || integer < 0) {
+                    return false;
+                }
+                var bitsetIndex = integer >> 5;
+                if (bitsetIndex >= IntSet.this.bitset.length) {
+                    return false;
+                }
+                var targetBitMask = 1 << (integer & 31);
+                if ((IntSet.this.bitset[bitsetIndex] & targetBitMask) == 0) {
+                    return false;
+                }
+                IntSet.this.bitset[bitsetIndex] &= ~targetBitMask;
+                return true;
+            }
+
+            @Override
+            public void clear() {
+                Arrays.fill(IntSet.this.bitset, 0);
             }
         };
 

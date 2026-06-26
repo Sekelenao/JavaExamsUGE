@@ -746,8 +746,6 @@ public final class IntSetTest {
     }
   }
 
-  /*
-
   @Nested
   public class Q9 {
 
@@ -979,5 +977,4 @@ public final class IntSetTest {
     }
   }
 
-   */
 }
